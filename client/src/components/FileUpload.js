@@ -4,6 +4,11 @@ import Message from "./Message";
 import Progress from "./Progress";
 
 const FileUpload = () => {
+  let env = 'prod';
+  let url = '';
+  if (env === 'dev') {
+    url = 'http://localhost:5000';
+  } 
   const [files, setFiles] = useState([]);
   const [fileNames, setFileNames] = useState([]);
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -24,7 +29,7 @@ const FileUpload = () => {
     const formData = new FormData();
     files.forEach((file) => formData.append("file", file));
     try {
-      const res = await axios.post("http://localhost:5000/upload", formData, {
+      const res = await axios.post(`${url}/upload`,formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -55,7 +60,7 @@ const FileUpload = () => {
 
   const clearFiles = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/clear");
+      const res = await axios.get(`${url}/api/clear`);
       console.log(res.data);
       setMessage("Files Cleared");
       setFilesCleared(true);
@@ -68,7 +73,7 @@ const FileUpload = () => {
   const generateData = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:5000/api/data");
+      const res = await axios.get(`${url}/api/data`);
       setLoading(false);
       setModuleData(res.data);
       if (moduleData.length === 0) {
@@ -82,7 +87,7 @@ const FileUpload = () => {
 
   const generateExcel = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/download", { responseType: 'arraybuffer' });
+      const res = await axios.get(`${url}/download`,{ responseType: 'arraybuffer' });
        // download excel file from server
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement("a");
