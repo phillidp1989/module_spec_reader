@@ -591,7 +591,9 @@ async function text(req, res, next) {
 
   fs.readdirSync(path.join(__dirname, "../client/build")).forEach(
     (file) => {
-      filePaths.push(path.join(__dirname, "../client/build", file));
+      if (path.extname(file) === ".docx") {
+        filePaths.push(path.join(__dirname, "../client/build", file));
+      }
     }
   );
   let finalData = [];
