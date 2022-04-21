@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const directory = path.join(__dirname, '..', 'client', 'public', 'uploads');
+const directory = path.join(__dirname, '..', 'client', 'build', 'uploads');
 
 // Remove all files from the uploads folder
 const clearFiles = (req, res, next) => {

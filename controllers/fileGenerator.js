@@ -589,9 +589,9 @@ async function createProgData(file) {
 async function text(req, res, next) {
   const filePaths = [];
 
-  fs.readdirSync(path.join(__dirname, "../client/public/uploads")).forEach(
+  fs.readdirSync(path.join(__dirname, "../client/build/uploads")).forEach(
     (file) => {
-      filePaths.push(path.join(__dirname, "../client/public/uploads", file));
+      filePaths.push(path.join(__dirname, "../client/build/uploads", file));
     }
   );
   let finalData = [];
