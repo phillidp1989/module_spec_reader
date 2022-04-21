@@ -28,7 +28,16 @@ app.post("/upload", function (req, res) {
     return res.status(400).send("No files were uploaded.");
   }
 
-  const files = req.files.file;  
+  const files = req.files.file;
+  const { promises: { readdir } } = require('fs')
+
+const getDirectories = async source =>
+  (await readdir(source, { withFileTypes: true }))
+    .filter(dirent => dirent.isDirectory())
+    .map(dirent => dirent.name)
+
+    console.log(getDirectories(__dirname));
+    
   if (files.constructor.name == "Array") {
     files.forEach((file) => {
       file.mv(`${__dirname}/client/build/uploads/${file.name}`, (err) => {
