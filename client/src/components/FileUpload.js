@@ -9,8 +9,7 @@ const FileUpload = () => {
   if (env === 'dev') {
     url = 'http://localhost:5000';
   } 
-  const [files, setFiles] = useState([]);
-  const [fileNames, setFileNames] = useState([]);
+  const [files, setFiles] = useState([]);  
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [message, setMessage] = useState("");
   const [uploadPercentage, setUploadPercentage] = useState(0);
@@ -40,7 +39,7 @@ const FileUpload = () => {
             )
           );
           // Clear percentage
-          setTimeout(() => setUploadPercentage(0), 10000);
+          setTimeout(() => setUploadPercentage(0), 3000);
         },
       });
 
