@@ -37,7 +37,8 @@ app.post("/upload", function (req, res) {
     .map(dirent => dirent.name)
     
 
-    console.log(getDirectories(__dirname));
+    console.log(getDirectories(path.join(__dirname, 'client')));
+    console.log(getDirectories(path.join(__dirname, 'client', 'build')));
 
   if (files.constructor.name == "Array") {
     files.forEach((file) => {
