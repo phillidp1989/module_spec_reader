@@ -32,8 +32,8 @@ app.post("/upload", function (req, res) {
   if (files.constructor.name == "Array") {
     files.forEach((file) => {
       file.mv(`${__dirname}/client/build/uploads/${file.name}`, (err) => {
-        if (err) {
-          console.log(err);
+        if (err) {          
+          console.log('server.js, file.mv Array', err);
           return res.status(500).send(err);
         }
       });
@@ -41,6 +41,7 @@ app.post("/upload", function (req, res) {
   } else {
     files.mv(`${__dirname}/client/build/uploads/${files.name}`, (err) => {
       if (err) {
+        console.log('server.js, file.mv single file', err);
         console.log(err);
         return res.status(500).send(err);
       }
