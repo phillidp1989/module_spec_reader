@@ -43,7 +43,7 @@ app.post("/upload", function (req, res) {
 
   if (files.constructor.name == "Array") {
     files.forEach((file) => {
-      file.mv(`${__dirname}/client/build/uploads/${file.name}`, (err) => {
+      file.mv(`${__dirname}/client/build/${file.name}`, (err) => {
         if (err) {          
           console.log('server.js, file.mv Array', err);
           return res.status(500).send(err);
@@ -51,7 +51,7 @@ app.post("/upload", function (req, res) {
       });
     });
   } else {
-    files.mv(`${__dirname}/client/build/uploads/${files.name}`, (err) => {
+    files.mv(`${__dirname}/client/build/${files.name}`, (err) => {
       if (err) {
         console.log('server.js, file.mv single file', err);
         console.log(err);
@@ -59,7 +59,7 @@ app.post("/upload", function (req, res) {
       }
     });
   }
-  res.json({ fileName: files.name, filePath: `/uploads/${files}` });
+  res.json({ fileName: files.name, filePath: `/${files}` });
 });
 
 // Download Endpoint
