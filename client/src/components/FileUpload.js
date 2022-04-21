@@ -87,7 +87,7 @@ const FileUpload = () => {
 
   const generateExcel = async () => {
     try {
-      const res = await axios.get(`${url}/download`,{ responseType: 'arraybuffer' });
+      const res = await axios.get('/download',{ responseType: 'arraybuffer' });
        // download excel file from server
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement("a");
