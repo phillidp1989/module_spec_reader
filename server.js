@@ -36,8 +36,8 @@ const getDirectories = async source =>
     .filter(dirent => dirent.isDirectory())
     .map(dirent => dirent.name)
 
-    console.log(getDirectories(__dirname));
-    
+    console.log(await getDirectories(__dirname));
+
   if (files.constructor.name == "Array") {
     files.forEach((file) => {
       file.mv(`${__dirname}/client/build/uploads/${file.name}`, (err) => {
