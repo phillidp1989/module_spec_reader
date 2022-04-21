@@ -25,10 +25,8 @@ async function createProgData(file) {
   );
 
   //   textract.fromFileWithPath(file, config, async function (error, text, final) {
-  // console.log(JSON.stringify(text));
-  text = JSON.stringify(text);
 
-  console.log(text);
+  text = JSON.stringify(text);
 
   let delimited1 = text
     // Description start
@@ -110,9 +108,12 @@ async function createProgData(file) {
     .replace("BWhere will the teaching take place?", "Ã")
     .replace("If ‘other’ please state here:", "Ä")
     .replace("B Q SFComment briefly", "Ä")
-    .replace("teaching year structure", "Å")
+    .replace(
+      "Please detail any exemptions from Regulations, including approved exceptions relating to the semesterised teaching year structure",
+      "Å"
+    )
     .replace("Please detail any exemptions from Regulations", "Å")
-    .replace("QTotal student effort", "Æ")
+    .replace("QTotal student", "Æ")
     .replace("SF16.1Lecture", "Ç")
     .replace("SFLecture", "Ç")
     .replace("16.2Seminar", "È")
@@ -497,7 +498,7 @@ async function createProgData(file) {
     outcomes = outcomes
       .replace(/\\n\\n/g, "</li><li>")
       .replace(/<\/li><li>\/li><li>/g, "</li><li>");
-    
+
     outcomes = outcomes.replace(/\\n/g, "</li><li>");
 
     outcomes = outcomes.replace("18.1", "");
@@ -589,13 +590,11 @@ async function createProgData(file) {
 async function text(req, res, next) {
   const filePaths = [];
 
-  fs.readdirSync(path.join(__dirname, "../client/build")).forEach(
-    (file) => {
-      if (path.extname(file) === ".docx") {
-        filePaths.push(path.join(__dirname, "../client/build", file));
-      }
+  fs.readdirSync(path.join(__dirname, "../client/build")).forEach((file) => {
+    if (path.extname(file) === ".docx") {
+      filePaths.push(path.join(__dirname, "../client/build", file));
     }
-  );
+  });
   let finalData = [];
   try {
     for (let i = 0; i < filePaths.length; i++) {
