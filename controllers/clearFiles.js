@@ -7,10 +7,12 @@ const clearFiles = (req, res, next) => {
     let response = [];
     const files = fs.readdirSync(directory);
     for (const file of files) {
+        if (path.extname(file) === ".docx") {
         fs.unlink(path.join(directory, file), err => {
           if (err) throw err;
             response.push(file);
         });
+    }
     }
     return res.status(200).send(response);
 }
