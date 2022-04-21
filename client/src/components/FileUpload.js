@@ -95,8 +95,6 @@ const FileUpload = () => {
       link.setAttribute("download", "output.xlsx");
       document.body.appendChild(link);
       link.click();     
-
-
     } catch (err) {
       console.log(err);
     }
