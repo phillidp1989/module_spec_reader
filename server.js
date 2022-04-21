@@ -29,14 +29,14 @@ app.post("/upload", function (req, res) {
   }
 
   const files = req.files.file;
-  const { promises: { readdir } } = require('fs')
 
-const getDirectories = async source =>
-  (await readdir(source, { withFileTypes: true }))
+  const getDirectories = source =>
+  fs.readdirSync(source, { withFileTypes: true })
     .filter(dirent => dirent.isDirectory())
     .map(dirent => dirent.name)
+    
 
-    console.log(await getDirectories(__dirname));
+    console.log(getDirectories(__dirname));
 
   if (files.constructor.name == "Array") {
     files.forEach((file) => {
