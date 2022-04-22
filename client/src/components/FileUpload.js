@@ -66,6 +66,7 @@ const FileUpload = () => {
       const res = await axios.get(`${url}/api/clear`);
       console.log(res.data);
       setMessage("Files Cleared");
+      setFiles([]);
       setFilesCleared(true);
       setModuleData([]);
     } catch (err) {
