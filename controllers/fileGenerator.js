@@ -65,6 +65,8 @@ async function createProgData(file) {
 
   const data = await reader.getText(file);
 
+  // console.log(data);
+
   let delimited = data
     .replace("QDate of implementation (in terms of academic sessions)", "`")
     .replace("BRationale", "¬")
@@ -96,6 +98,10 @@ async function createProgData(file) {
     .replace("Confirmation that module registrations ", "À")
     .replace("exchange students, if applicable)", "Á")
     .replace("as well as attempted", "Á")
+    .replace(
+      "B13.2State if there is any other/prior",
+      "☩"
+    )
     .replace(
       "BState the name and code of any co-requisite modules on which students must also register in the same session",
       "Â"
@@ -228,7 +234,9 @@ async function createProgData(file) {
   } else {
     optional = "";
   }
-  let prereq = extract(delimited, "Á", "Â").trim();
+  let prereq = delimited.includes("☩")
+  ? extract(delimited, "Á", "☩").trim()
+  : extract(delimited, "Á", "Â").trim();
   let coreq = extract(delimited, "Â", "Ã").trim();
   let campus = extract(delimited, "Ã", "Ä").trim();
   let exemptions = extract(delimited, "Å", "Æ").trim();
