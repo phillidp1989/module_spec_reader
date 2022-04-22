@@ -22,12 +22,14 @@ const FileUpload = () => {
     setFiles(e.target.files ? Array.from(e.target.files) : []);
   };
 
-  const onSubmit = async (e) => {
-    console.log(message);
+  const onSubmit = async (e) => {    
     e.preventDefault();
-    const formData = new FormData();
-    files.forEach((file) => formData.append("file", file));
-    try {
+    if (files.length === 0) {
+      setMessage("No files selected");      
+    } else {      
+      const formData = new FormData();
+      files.forEach((file) => formData.append("file", file));
+      try {
       const res = await axios.post(`${url}/upload`,formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -36,24 +38,26 @@ const FileUpload = () => {
           setUploadPercentage(
             parseInt(
               Math.round((progressEvent.loaded * 100) / progressEvent.total)
-            )
+              )
           );
           // Clear percentage
           setTimeout(() => setUploadPercentage(0), 3000);
         },
       });
 
-      const { fileNames, filePath } = res.data;
-
+      setMessage("Files Uploaded");  
+      const { fileNames, filePath } = res.data;      
       setUploadedFiles([{ fileNames, filePath }]);
-      setMessage("Files Uploaded");
       setFilesUploaded(true);
+    
     } catch (err) {
       if (err.response.status === 500) {
         setMessage("There was a problem with the server");
       } else {
         setMessage(err.response.data);
       }
+    }
+
     }
   };
 
@@ -75,7 +79,7 @@ const FileUpload = () => {
       const res = await axios.get(`${url}/api/data`);
       setLoading(false);
       setModuleData(res.data);
-      if (moduleData.length === 0) {
+      if (res.data.length === 0) {
         setMessage("No module specs found");
       }
       console.log(res.data);
@@ -150,7 +154,7 @@ const FileUpload = () => {
       </form>
       {loading && (
         <div className="text-center">
-            <div class="spinner-border text-info mb-4 text-center" role="status">
+            <div class="spinner-border text-info mb-4 text-center w-90" role="status">
               <span class="sr-only">Loading...</span>
             </div>
             </div>
