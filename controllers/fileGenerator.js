@@ -505,7 +505,8 @@ async function createProgData(file) {
     outcomes = `By the end of the module students should be able to:<ul><li>${outcomes}`;
     outcomes = outcomes
       .replace(/\\n\\n/g, "</li><li>")
-      .replace(/<\/li><li>\/li><li>/g, "</li><li>");
+      .replace(/<\/li><li>\/li><li>/g, "</li><li>")
+      .replace(/<\/li><li>\/li><\/ul>/g, "</li></ul>");
 
     outcomes = outcomes.replace(/\\n/g, "</li><li>");
 
@@ -536,7 +537,8 @@ async function createProgData(file) {
   assessment = `<strong>Assessment:</strong><br><br>${summative}<br><br><strong>Reassessment:</strong><br><br>${reassessment}`;
   assessment = assessment
     .replace(/&amp;/g, "&")
-    .replace(/<br><br><br><br>/g, "<br><br>");
+    .replace(/<br><br><br><br>/g, "<br><br>")
+    .replace("<br><br><br><br>", "<br><br>");
   assessment = assessment.replace(/<br><br><br>/g, "<br><br>");
 
   const data2 = {
