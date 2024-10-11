@@ -4,7 +4,7 @@ import Message from "./Message";
 import Progress from "./Progress";
 
 const FileUpload = () => {
-  let env = 'prod';
+  let env = 'dev';
   let url = '';
   if (env === 'dev') {
     url = 'http://localhost:5000';

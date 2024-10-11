@@ -356,7 +356,8 @@ const ccMapping = [
         "Banner - Dept Level5": "039"
     },
     {
-        "Banner - Dept Level5": "238"
+        "Banner - Dept Level5": "238",
+        "New CC": "133"
     }
 ]
 

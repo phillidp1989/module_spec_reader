@@ -392,8 +392,8 @@ const hecosMapping = [
         "Short title": "Pharmacy",
         "JACS": "B230",
         "JACS Description": "Pharmacy",
-        "HECoS": "Close match",
-        "HECoS Description": "100251",
+        "HECoS": "100251",
+        "HECoS Description": "pharmacy",
         "undefined": "pharmacy"
     },
     {
@@ -672,8 +672,8 @@ const hecosMapping = [
         "Short title": "Accounting",
         "JACS": "N400",
         "JACS Description": "Accounting",
-        "HECoS": "Close match",
-        "HECoS Description": "100105",
+        "HECoS": "100105",
+        "HECoS Description": "Accounting",
         "undefined": "accounting"
     },
     {
@@ -682,8 +682,8 @@ const hecosMapping = [
         "Short title": "Finance",
         "JACS": "N300",
         "JACS Description": "Finance",
-        "HECoS": "Close match",
-        "HECoS Description": "100107",
+        "HECoS": "100107",
+        "HECoS Description": "finance",
         "undefined": "finance"
     },
     {

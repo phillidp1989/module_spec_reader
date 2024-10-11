@@ -402,6 +402,12 @@ const deptMapping = [
         "Subject": '09',
     },
     {
+        "Code": "237",
+        "Long": "Linguistics and Communication",
+        "Short": "Linguistics and Communications",
+        "Subject": '09',
+    },
+    {
         "Code": "238",
         "Long": "Liberal Arts",
         "Short": "Liberal Arts & Natural Science",
@@ -501,6 +507,12 @@ const deptMapping = [
         "Code": "259",
         "Long": "Institute of Microbiology and Infection",
         "Short": "Inst of Microb and Infection",
+        "Subject": '02',
+    },
+    {
+        "Code": "259",
+        "Long": "Microbes, Infection and Microbiomes",
+        "Short": "Microbes, Infections, Microbms",
         "Subject": '02',
     },
     {

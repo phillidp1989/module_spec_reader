@@ -8,6 +8,7 @@ const deptMapping = require("../mappings/dept.js");
 const schoolMapping = require("../mappings/school.js");
 const hecosMapping = require("../mappings/hecos.js");
 const ccMapping = require("../mappings/cc.js");
+const { log } = require("console");
 
 // Function to extract data from document
 function extract(string, first, last) {
@@ -18,15 +19,17 @@ async function createProgData(file) {
   const config = {
     preserveLineBreaks: true,
   };
-
+  
   let text = await pify(textract.fromFileWithPath, { multiArgs: true })(
     file,
     config
-  );
+    );
+    console.log('here');
 
   //   textract.fromFileWithPath(file, config, async function (error, text, final) {
 
   text = JSON.stringify(text);
+  console.log(text);
 
   let delimited1 = text
     // Description start
@@ -63,10 +66,9 @@ async function createProgData(file) {
   // .replace("B Q\\n\\nWill students come into contact", "ꮳ")
   // .replace("B Q\\nWill students come into contact", "ꮳ")
 
-  const data = await reader.getText(file);
+  const data = await reader.getText(file);  
 
-  // console.log(data);
-
+      console.log(data);
   let delimited = data
     .replace("QDate of implementation (in terms of academic sessions)", "`")
     .replace("BRationale", "¬")
@@ -193,6 +195,7 @@ async function createProgData(file) {
     .replace("&amp;", "&")
     .replace("&quot;", '"');
 
+    
   if (!delimited.includes("ꮮ")) {
     delimited = delimited.replace(
       "If ‘yes’ is this available for students to take overseas?",
@@ -216,8 +219,10 @@ async function createProgData(file) {
     ? extract(delimited, "[", "𓏉").trim()
     : extract(delimited, "[", "]").trim();
   let title = extract(delimited, "ʓ", "#").trim();
+  console.log(title);
   let code = extract(delimited, "#", "=").trim();
   let level = extract(delimited, "=", "@").trim();
+  console.log(level);
   let credits = delimited.includes("$")
     ? extract(delimited, "@", "$").trim()
     : extract(delimited, "@", "⸮").trim();
@@ -314,7 +319,11 @@ async function createProgData(file) {
     year = "002022";
   } else if (year.includes("2023")) {
     year = "002023";
-  }
+  } else if (year.includes("2024")) {
+    year = "002024";
+  } else if (year.includes("2025")) {
+    year = "002025";
+  };
 
   // Credits
 
@@ -378,6 +387,7 @@ async function createProgData(file) {
     )[0].College;
   }
 
+  
   // Level
 
   if (level.includes("Master")) {
@@ -389,6 +399,7 @@ async function createProgData(file) {
   } else if (level.includes("Certificate")) {
     level = "LC";
   }
+  
 
   // Campus code
 
@@ -422,13 +433,15 @@ async function createProgData(file) {
   // Long title
 
   if (
+    title.includes("LF ") ||
     title.includes("LC ") ||
     title.includes("LI ") ||
     title.includes("LH ") ||
     title.includes("LM ")
   ) {
     title = title
-      .replace("LC ", "")
+    .replace("LF ", "")  
+    .replace("LC ", "")
       .replace("LI ", "")
       .replace("LH ", "")
       .replace("LM ", "");
@@ -525,6 +538,26 @@ async function createProgData(file) {
     outcomes = outcomes.replace("18.13", "");
     outcomes = outcomes.replace("18.14", "");
     outcomes = outcomes.replace("18.15", "");
+    outcomes = outcomes.replace("20.1", "");
+    outcomes = outcomes.replace("20.2", "");
+    outcomes = outcomes.replace("20.3", "");
+    outcomes = outcomes.replace("20.4", "");
+    outcomes = outcomes.replace("20.5", "");
+    outcomes = outcomes.replace("20.6", "");
+    outcomes = outcomes.replace("20.7", "");
+    outcomes = outcomes.replace("20.8", "");
+    outcomes = outcomes.replace("20.9", "");
+    outcomes = outcomes.replace("20.10", "");
+    outcomes = outcomes.replace("20.11", "");
+    outcomes = outcomes.replace("20.12", "");
+    outcomes = outcomes.replace("20.13", "");
+    outcomes = outcomes.replace("20.14", "");
+    outcomes = outcomes.replace("20.15", "");
+    outcomes = outcomes
+      .replace(/\\n\\n/g, "</li><li>")
+      .replace(/<\/li><li>\/li><li>/g, "</li><li>")
+      .replace(/<\/li><li>\/li><\/ul>/g, "</li></ul>");
+    
     outcomes = outcomes.replace("19</li><li>", "</li></ul>");
 
     outcomes = outcomes + "</li></ul>";

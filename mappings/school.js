@@ -210,6 +210,30 @@ const schoolMapping = [
         "College": "12",
     },
     {
+        "Code": "035",
+        "School": "School of Social Policy and Society",
+        "School2": "School of Soc Pol and Society",
+        "College": "12",
+    },
+    {
+        "Code": "084",
+        "School": "School of Health Sciences",
+        "School2": "School of Health Sciences",
+        "College": "14",
+    },
+    {
+        "Code": "083",
+        "School": "School of Medical Sciences",
+        "School2": "School of Medical Sciences",
+        "College": "14",
+    },
+    {
+        "Code": "085",
+        "School": "School of Infection, Inflammation, Immunology",
+        "School2": "School of Infec, Inflam, Immun",
+        "College": "14",
+    },
+    {
         "Code": "036",
         "School": "School of Sport, Exercise and Rehabilitation Sciences",
         "School2": "Sport, Ex and Rehab Sciences",
@@ -220,7 +244,7 @@ const schoolMapping = [
         "School": "University Graduate School",
         "School2": "Academic Services",
         "College": "15",
-    }
+    },
 ]
 
 module.exports = schoolMapping;
