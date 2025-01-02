@@ -89,20 +89,35 @@ const FileUpload = () => {
     }
   };
 
+  // const generateExcel = async () => {
+  //   try {
+  //     const res = await axios.get('/download',{ responseType: 'arraybuffer' });
+  //      // download excel file from server
+  //     const url = window.URL.createObjectURL(new Blob([res.data]));
+  //     const link = document.createElement("a");
+  //     link.href = url;
+  //     link.setAttribute("download", "output.xlsx");
+  //     document.body.appendChild(link);
+  //     link.click();     
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
+
   const generateExcel = async () => {
     try {
-      const res = await axios.get('/download',{ responseType: 'arraybuffer' });
-       // download excel file from server
-      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const res = await axios.get(`${url}/download`, { responseType: 'arraybuffer' });
+      const fileURL = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement("a");
-      link.href = url;
+      link.href = fileURL;
       link.setAttribute("download", "output.xlsx");
       document.body.appendChild(link);
-      link.click();     
+      link.click();
     } catch (err) {
       console.log(err);
     }
   };
+  
 
   return (
     <>

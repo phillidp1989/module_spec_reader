@@ -29,7 +29,7 @@ async function createProgData(file) {
   //   textract.fromFileWithPath(file, config, async function (error, text, final) {
 
   text = JSON.stringify(text);
-  console.log(text);
+  // console.log(text);
 
   let delimited1 = text
     // Description start
@@ -68,16 +68,19 @@ async function createProgData(file) {
 
   const data = await reader.getText(file);  
 
-      console.log(data);
+      // console.log(data);
   let delimited = data
     .replace("QDate of implementation (in terms of academic sessions)", "`")
     .replace("BRationale", "¬")
     .replace("B1School/Institute that owns the module", "{")
     .replace("School/Institute that owns the module", "{")
+    .replace("B1School that owns the module", "{")
     .replace("B2Department (if applicable)", "[")
     .replace("BDepartment (if applicable)", "[")
     .replace("BDepartment(if applicable)", "[")
+    .replace("B\n\nDepartment (if applicable)", "[")
     .replace("BIs the", "]")
+    .replace("B\n\nIs the", "]")
     .replace("&amp;", "&")
     .replace("QModule title ", "ʓ")
     .replace("BModule title", "𓏉")
@@ -91,6 +94,10 @@ async function createProgData(file) {
     .replace("B QModule attribute", "$")
     .replace("B QSemester in which the module will run", "⸮")
     .replace("BSemester in which the module will run", "⸮")
+    .replace(
+      "If delivered multiple times a year,",
+      "ﱙ"
+    )
     .replace(
       "BProgrammes on which the module is available (please state the programme title and code)",
       "ﱙ"
@@ -155,6 +162,10 @@ async function createProgData(file) {
       "ꮧ Schools/Institutes are also encouraged to refer to the Birmingham Graduate Attributes. ",
       "ꮧ"
     )
+    .replace(
+      "ꮧ Schools are also encouraged to refer to the Birmingham Graduate Attributes. ",
+      "ꮧ"
+    )
     .replace("Opportunities for formative assessment ", "ꮨ")
     .replace("contributes to the overall module mark)", "ꮩ")
     .replace(
@@ -178,6 +189,10 @@ async function createProgData(file) {
       "e.g. 1hr written unseen examination (50%), 500 word essay (10%), group presentation (40%), if required",
       "ꮫ"
     )
+    .replace(
+      "e.g. 1hr written unseen examination (50%), 500-word essay (10%), group presentation (40%), if required",
+      "ꮫ"
+    )
     .replace("B QIf there is an examination", "ꮬ")
     .replace("timetabled?", "ꮭ")
     .replace("If ‘yes’ please specify the length of the examination:", "ꮮ")
@@ -188,6 +203,9 @@ async function createProgData(file) {
     .replace("meet the module’s learning outcomes.", "ꮲ")
     .replace("B QWill students come into contact", "ꮳ")
     .replace("Module lead:", "ꮴ")
+    .replace("Module leads:", "ꮴ")
+    .replace("Module co-leads:", "ꮴ")
+    .replace("School administrative contact", "ꮵ")
     .replace("School/Institute administrative contact", "ꮵ")
     .replace("&lt;", "<")
     .replace("&gt;", ">")
@@ -217,12 +235,10 @@ async function createProgData(file) {
   let school = extract(delimited, "{", "[").trim();
   let department = delimited.includes("𓏉")
     ? extract(delimited, "[", "𓏉").trim()
-    : extract(delimited, "[", "]").trim();
-  let title = extract(delimited, "ʓ", "#").trim();
-  console.log(title);
+    : extract(delimited, "[", "]").trim();    
+  let title = extract(delimited, "ʓ", "#").trim();  
   let code = extract(delimited, "#", "=").trim();
-  let level = extract(delimited, "=", "@").trim();
-  console.log(level);
+  let level = extract(delimited, "=", "@").trim();  
   let credits = delimited.includes("$")
     ? extract(delimited, "@", "$").trim()
     : extract(delimited, "@", "⸮").trim();
@@ -263,6 +279,7 @@ async function createProgData(file) {
   let outcomes = extract(delimited1, "ꮧ", "ꮨ").trim();
   let formative = extract(delimited, "ꮩ", "ꮪ").trim();
   let summative = extract(delimited1, "ꮫ", "ꮬ").trim();
+  console.log(summative);
   let exam = extract(delimited, "ꮭ", "ꮮ").trim();
   let examPeriod = extract(delimited, "ꮯ", "ꮰ").trim();
   let hurdles = extract(delimited, "ꮰ", "ꮱ").trim();
@@ -321,7 +338,7 @@ async function createProgData(file) {
     year = "002023";
   } else if (year.includes("2024")) {
     year = "002024";
-  } else if (year.includes("2025")) {
+  } else if (year.includes("2025") || year.includes("25/26")) {
     year = "002025";
   };
 

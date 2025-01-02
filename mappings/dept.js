@@ -404,7 +404,7 @@ const deptMapping = [
     {
         "Code": "237",
         "Long": "Linguistics and Communication",
-        "Short": "Linguistics and Communications",
+        "Short": "Linguistics and Communication",
         "Subject": '09',
     },
     {
