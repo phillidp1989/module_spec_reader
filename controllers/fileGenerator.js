@@ -35,10 +35,22 @@ async function createProgData(file) {
     // Description start
     .replace("accessible to prospective students.\\n\\n", "ꮥ")
     .replace("accessible to prospective students.\\n", "ꮥ")
+
+    .replace("Module description", "ꮤ")
+    
+      // Description End
+      .replace("accessible to prospective students.", "ꮥ")
+    
+      // Outcomes Start
+      
+
+
     // Description end
     .replace("\\nQ\\n\\nModule outcomes:", "ꮦ")
     .replace("\\nQ\\nModule outcomes:", "ꮦ")
     .replace("Q\\n\\nModule outcomes:", "ꮦ")
+    .replace("QModule outcomes:", "ꮦ")
+      .replace("Module outcomes:", "ꮦ")
     // Learning outcomes start
     .replace("By the end of the module students should be able to:\\n\\n", "ꮧ")
     .replace("By the end of the module students should be able to:\\n", "ꮧ")
@@ -54,164 +66,243 @@ async function createProgData(file) {
       "e.g. 1hr written unseen examination (50%), 500 word essay (10%), group presentation (40%), if required",
       "ꮫ"
     )
+    .replace(
+      "e.g. 2hr written unseen examination (50%), 1500 word essay (50%)",
+      "ꮫ"
+    )
     //   Summative assessment end
     .replace("B Q\\n\\nIf there is an examination", "ꮬ")
     .replace("B Q\\n\\n\\nIf there is an examination", "ꮬ")
     .replace("B Q\\nIf there is an examination", "ꮬ")
+    .replace("If there is an examination", "ꮬ")
     // Reassessment start
     .replace("meet the module's learning outcomes.\\n", "ꮲ")
     .replace("meet the module’s learning outcomes.\\n\\n", "ꮲ")
+    .replace("meet the module’s learning outcomes.", "ꮲ")
     // Reassessment end
-    .replace(/\\nB Q\\n\\nWill students come into contact/, "ꮳ");
-  // .replace("B Q\\n\\nWill students come into contact", "ꮳ")
+    .replace(/\\nB Q\\n\\nWill students come into contact/, "ꮳ")
+    .replace("Will students come into contact", "ꮳ");
   // .replace("B Q\\nWill students come into contact", "ꮳ")
 
   const data = await reader.getText(file);  
 
       // console.log(data);
-  let delimited = data
-    .replace("QDate of implementation (in terms of academic sessions)", "`")
-    .replace("BRationale", "¬")
-    .replace("B1School/Institute that owns the module", "{")
-    .replace("School/Institute that owns the module", "{")
-    .replace("B1School that owns the module", "{")
-    .replace("B2Department (if applicable)", "[")
-    .replace("BDepartment (if applicable)", "[")
-    .replace("BDepartment(if applicable)", "[")
-    .replace("B\n\nDepartment (if applicable)", "[")
-    .replace("BIs the", "]")
-    .replace("B\n\nIs the", "]")
-    .replace("&amp;", "&")
-    .replace("QModule title ", "ʓ")
-    .replace("BModule title", "𓏉")
-    .replace("B3Module title", "𓏉")
-    .replace("B QModule code (if known)", "#")
-    .replace("QModule code (if known)", "#")
-    .replace("B QModule code(s) (if known)", "#")
-    .replace("B QModule code (if known)", "#")
-    .replace("BModule level", "=")
-    .replace("B QModule credits ", "@")
-    .replace("B QModule attribute", "$")
-    .replace("B QSemester in which the module will run", "⸮")
-    .replace("BSemester in which the module will run", "⸮")
-    .replace(
-      "If delivered multiple times a year,",
-      "ﱙ"
-    )
-    .replace(
-      "BProgrammes on which the module is available (please state the programme title and code)",
-      "ﱙ"
-    )
-    .replace("registered on this module code):", "Ǖ")
-    .replace("As an optional module:", "Ê")
-    .replace("Confirmation that module registrations ", "À")
-    .replace("exchange students, if applicable)", "Á")
-    .replace("as well as attempted", "Á")
-    .replace(
-      "B13.2State if there is any other/prior",
-      "☩"
-    )
-    .replace(
-      "BState the name and code of any co-requisite modules on which students must also register in the same session",
-      "Â"
-    )
-    .replace(
-      "State the name and code of any co-requisite modules on which students must also register in the same session",
-      "Â"
-    )
-    .replace("BWhere will the teaching take place? ", "Ã")
-    .replace("BWhere will the teaching take place?", "Ã")
-    .replace("If ‘other’ please state here:", "Ä")
-    .replace("B Q SFComment briefly", "Ä")
-    .replace(
-      "Please detail any exemptions from Regulations, including approved exceptions relating to the semesterised teaching year structure",
-      "Å"
-    )
-    .replace("Please detail any exemptions from Regulations", "Å")
-    .replace("QTotal student", "Æ")
-    .replace("SF16.1Lecture", "Ç")
-    .replace("SFLecture", "Ç")
-    .replace("16.2Seminar", "È")
-    .replace("Seminar", "È")
-    .replace("16.3Tutorial", "É")
-    .replace("Tutorial", "É")
-    .replace("16.4Project supervision", "ꮛ")
-    .replace("Project supervision", "ꮛ")
-    .replace("16.5Demonstration", "ꮜ")
-    .replace("Demonstration", "ꮜ")
-    .replace("16.6Practical classes/workshops", "ꮝ")
-    .replace("Practical classes/workshops", "ꮝ")
-    .replace("16.7Supervised time in a studio/workshop/lab", "ꮞ")
-    .replace("Supervised time in a studio/workshop/lab", "ꮞ")
-    .replace("16.8Fieldwork", "ꮟ")
-    .replace("Fieldwork", "ꮟ")
-    .replace("16.9External visits", "ꮠ")
-    .replace("External visits", "ꮠ")
-    .replace("16.10Work based learning/placement", "ꮡ")
-    .replace("Work based learning/placement", "ꮡ")
-    .replace("16.11Guided independent study", "ꮢ")
-    .replace("Guided independent study", "ꮢ")
-    .replace("16.12Study abroad", "ꮣ")
-    .replace("Study abroad", "ꮣ")
-    .replace("Module descriptionRecommended:", "ꮤ")
-    .replace("Module description", "ꮤ")
-    .replace("accessible to prospective students.", "ꮥ")
-    .replace("QModule outcomes:", "ꮦ")
-    .replace("Subject Benchmark Statements.", "ꮧ")
-    .replace(
-      "ꮧ Schools/Institutes are also encouraged to refer to the Birmingham Graduate Attributes. ",
-      "ꮧ"
-    )
-    .replace(
-      "ꮧ Schools are also encouraged to refer to the Birmingham Graduate Attributes. ",
-      "ꮧ"
-    )
-    .replace("Opportunities for formative assessment ", "ꮨ")
-    .replace("contributes to the overall module mark)", "ꮩ")
-    .replace(
-      "If the module is wholly or partly assessed by coursework, please state the overall weighting:",
-      "ɸ"
-    )
-    .replace(
-      "QIf the module is wholly or partly assessed by examination, please state the overall weighting:",
-      "∏"
-    )
-    .replace(
-      "Additional information on the method(s) of summative assessment",
-      "Ŋ"
-    )
-    .replace("QMethod(s) of summative", "ꮪ")
-    .replace(
-      "e.g. 1hr written unseen examination (50%), 1500 word essay (50%)",
-      "ꮫ"
-    )
-    .replace(
-      "e.g. 1hr written unseen examination (50%), 500 word essay (10%), group presentation (40%), if required",
-      "ꮫ"
-    )
-    .replace(
-      "e.g. 1hr written unseen examination (50%), 500-word essay (10%), group presentation (40%), if required",
-      "ꮫ"
-    )
-    .replace("B QIf there is an examination", "ꮬ")
-    .replace("timetabled?", "ꮭ")
-    .replace("If ‘yes’ please specify the length of the examination:", "ꮮ")
-    .replace("If ‘yes’ please specify the length of the examination:", "𓋧")
-    .replace("select examination period", "ꮯ")
-    .replace("BPlease describe any internal hurdles", "ꮰ")
-    .replace("B QMethod(s) of reassessment", "ꮱ")
-    .replace("meet the module’s learning outcomes.", "ꮲ")
-    .replace("B QWill students come into contact", "ꮳ")
-    .replace("Module lead:", "ꮴ")
-    .replace("Module leads:", "ꮴ")
-    .replace("Module co-leads:", "ꮴ")
-    .replace("School administrative contact", "ꮵ")
-    .replace("School/Institute administrative contact", "ꮵ")
-    .replace("&lt;", "<")
-    .replace("&gt;", ">")
-    .replace("&amp;", "&")
-    .replace("&amp;", "&")
-    .replace("&quot;", '"');
+      let delimited = data
+      // Year Start
+      .replace("QDate of implementation (in terms of academic sessions)", "`")
+      .replace("Date of implementation (in terms of academic sessions)", "`")
+      // Year End / Rationale Start
+      .replace("BRationale", "¬")
+      .replace("Rationale", "¬")
+    
+      // School Start
+      .replace("B1School/Institute that owns the module", "!")
+      .replace("School/Institute that owns the module", "{")
+      .replace("B1School that owns the module", "{")
+      .replace("1School that owns the module", "!")
+      .replace("School that owns the module", "{")
+      // Department Start
+      // .replace("B2Department (if applicable)", "[")
+      .replace("BDepartment (if applicable)", "[")
+      .replace("BDepartment(if applicable)", "[")
+      .replace("B\n\nDepartment (if applicable)", "[")
+      .replace("2Department", "*")
+      .replace("Department (if applicable)", "[")
+      // Department End
+      .replace("BIs the", "]")
+      .replace("B\n\nIs the", "]")
+      .replace("Is the module delivered", "]")
+    
+      // HTML cleanup
+      .replace("&amp;", "&")
+    
+      // Title Start
+      .replace("3Module title", "X")
+      .replace("QModule title ", "ʓ")      
+      .replace("BModule title", "𓏉")
+      .replace("B3Module title", "𓏉")      
+      .replace("N/AModule title", "ʓ")
+      .replace("Module title", "ʓ")
+    
+      // Code Start
+      .replace("B QModule code (if known)", "#")
+      .replace("QModule code (if known)", "#")
+      .replace("B QModule code(s) (if known)", "#")
+      .replace("B QModule code (if known)", "#")
+      .replace("Module code(s) (if known)", "#")
+      
+      
+    
+      // Code End / Level Start
+      .replace("BModule level", "=")
+      .replace("Module level", "=")
+    
+      // Level End / Credits Start
+      .replace("B QModule credits ", "@")
+      .replace("Module credits ", "@")
+    
+      // Credits End / Attribute Start
+      .replace("B QModule attribute", "$")
+      .replace("Module attribute", "$")
+    
+      // Attribute End / Semester Start
+      .replace("B QSemester in which the module will run", "⸮")
+      .replace("BSemester in which the module will run", "⸮")
+      .replace("Semester in which the module will run", "⸮")
+    
+      // Semester End
+      .replace("If delivered multiple times a year,", "ﱙ")
+      .replace("BProgrammes on which the module is available (please state the programme title and code)", "ﱙ")
+    
+      // Compulsory Start
+      .replace("registered on this module code):", "Ǖ")
+      // Optional Start
+      .replace("As an optional module:", "Ê")
+      // Optional End
+      .replace("Confirmation that module registrations ", "À")
+    
+      // Prerequisite Start
+      // .replace("exchange students, if applicable)", "Á")
+      .replace("as well as attempted", "Á")
+    
+      // Prerequisite End
+      .replace("B13.2State if there is any other/prior", "☩")
+      .replace("13.2State if there is any other/prior", "☩")
+      .replace("13.1State if there is any other/prior", "☩")
+    
+      // Corequisite Start
+      .replace("BState the name and code of any co-requisite modules on which students must also register in the same session", "Â")
+      .replace("State the name and code of any co-requisite modules on which students must also register in the same session", "Â")
+    
+      // Corequisite End / Campus Start
+      .replace("BWhere will the teaching take place? ", "Ã")
+      .replace("BWhere will the teaching take place?", "Ã")
+      .replace("Where will the teaching take place?", "Ã")
+    
+      // Campus End / Delivery Notes Start
+      .replace("If ‘other’ please state here:", "Ä")
+      .replace("B Q SFComment briefly", "Ä")
+    
+      // Delivery Notes End / Exemptions Start
+      .replace("Please detail any exemptions from Regulations, including approved exceptions relating to the semesterised teaching year structure", "Å")
+      .replace("Please detail any exemptions from Regulations", "Å")      
+    
+      // Exemptions End / Lecture Start
+      .replace("QTotal student", "Æ")
+      .replace("Total student", "Æ")
+      .replace("SF16.1Lecture", "Ç")
+      .replace("SFLecture", "Ç")
+      .replace("Lecture", "Ç")
+    
+      // Lecture End / Seminar Start
+      .replace("16.2Seminar", "È")
+      .replace("Seminar", "È")
+    
+      // Seminar End / Tutorial Start
+      .replace("16.3Tutorial", "É")
+      .replace("Tutorial", "É")
+    
+      // Tutorial End / Project Supervision Start
+      .replace("16.4Project supervision", "ꮛ")
+      .replace("Project supervision", "ꮛ")
+    
+      // Project Supervision End / Demonstration Start
+      .replace("16.5Demonstration", "ꮜ")
+      .replace("Demonstration", "ꮜ")
+    
+      // Demonstration End / Practical Start
+      .replace("16.6Practical classes/workshops", "ꮝ")
+      .replace("Practical classes/workshops", "ꮝ")
+    
+      // Practical End / Lab Start
+      .replace("16.7Supervised time in a studio/workshop/lab", "ꮞ")
+      .replace("Supervised time in a studio/workshop/lab", "ꮞ")
+    
+      // Lab End / Fieldwork Start
+      .replace("16.8Fieldwork", "ꮟ")
+      .replace("Fieldwork", "ꮟ")
+    
+      // Fieldwork End / External Visits Start
+      .replace("16.9External visits", "ꮠ")
+      .replace("External visits", "ꮠ")
+    
+      // External Visits End / Work-Based Learning Start
+      .replace("16.10Work based learning/placement", "ꮡ")
+      .replace("Work based learning/placement", "ꮡ")
+    
+      // Work-Based Learning End / Guided Study Start
+      .replace("16.11Guided independent study", "ꮢ")
+      .replace("Guided independent study", "ꮢ")
+    
+      // Guided Study End / Study Abroad Start
+      .replace("16.12Study abroad", "ꮣ")
+      .replace("Study abroad", "ꮣ")
+    
+      // Study Abroad End / Description Start
+      .replace("Module descriptionRecommended:", "ꮤ")
+      .replace("Module description", "ꮤ")
+    
+      // Description End
+      .replace("accessible to prospective students.", "ꮥ")
+    
+      // Outcomes Start
+      .replace("QModule outcomes:", "ꮦ")
+      .replace("Module outcomes:", "ꮦ")
+      .replace("Subject Benchmark Statements.", "ꮧ")
+      .replace("ꮧ Schools/Institutes are also encouraged to refer to the Birmingham Graduate Attributes. ", "ꮧ")
+      .replace("ꮧ Schools are also encouraged to refer to the Birmingham Graduate Attributes. ", "ꮧ")
+    
+      // Outcomes End / Formative Start
+      .replace("Opportunities for formative assessment ", "ꮨ")
+    
+      // Formative End / Summative Start
+      .replace("contributes to the overall module mark)", "ꮩ")
+    
+      // Summative End
+      .replace("If the module is wholly or partly assessed by coursework, please state the overall weighting:", "ɸ")
+      .replace("QIf the module is wholly or partly assessed by examination, please state the overall weighting:", "∏")
+    
+      // Summative Extra Details
+      .replace("Additional information on the method(s) of summative assessment", "Ŋ")
+      .replace("QMethod(s) of summative", "ꮪ")
+      .replace("e.g. 1hr written unseen examination (50%), 1500 word essay (50%)", "ꮫ")
+      .replace("e.g. 1hr written unseen examination (50%), 500 word essay (10%), group presentation (40%), if required", "ꮫ")
+      .replace("e.g. 1hr written unseen examination (50%), 500-word essay (10%), group presentation (40%), if required", "ꮫ")
+    
+      // Exam Start
+      .replace("B QIf there is an examination", "ꮬ")
+      .replace("timetabled?", "ꮭ")
+    
+      // Exam End / Exam Length Start
+      .replace("If ‘yes’ please specify the length of the examination:", "ꮮ")
+      .replace("If ‘yes’ please specify the length of the examination:", "𓋧")
+    
+      // Exam Period
+      .replace("select examination period", "ꮯ")
+    
+      // Hurdles
+      .replace("BPlease describe any internal hurdles", "ꮰ")
+      .replace("Please describe any internal hurdles", "ꮰ")
+    
+      // Reassessment
+      .replace("B QMethod(s) of reassessment", "ꮱ")
+      .replace("Method(s) of reassessment", "ꮱ")
+      .replace("meet the module’s learning outcomes.", "ꮲ")
+    
+      // Contact
+      .replace("B QWill students come into contact", "ꮳ")
+      .replace("Module lead:", "ꮴ")
+      .replace("Module leads:", "ꮴ")
+      .replace("Module co-leads:", "ꮴ")
+      .replace("School administrative contact", "ꮵ")
+      .replace("School/Institute administrative contact", "ꮵ")
+    
+      // HTML cleanup
+      .replace("&lt;", "<")
+      .replace("&gt;", ">")
+      .replace("&amp;", "&")
+      .replace("&amp;", "&")
+      .replace("&quot;", '"')  
 
     
   if (!delimited.includes("ꮮ")) {
@@ -524,9 +615,9 @@ async function createProgData(file) {
 
   if (!description.includes("<br>")) {
     description = description
-      .replace(/\\n/g, "<br>")
-      .replace(/<br><br><br>/g, "<br><br>")
-      .replace(/<br><br><br><br>/g, "<br><br>");
+      .replace(/\\n/g, "<br>")      
+      .replace(/<br><br><br><br>/g, "<br><br>")
+      .replace(/<br><br><br>/g, "<br><br>");
   }
 
   // Learning outcomes
@@ -571,18 +662,25 @@ async function createProgData(file) {
     outcomes = outcomes.replace("20.14", "");
     outcomes = outcomes.replace("20.15", "");
     outcomes = outcomes
-      .replace(/\\n\\n/g, "</li><li>")
-      .replace(/<\/li><li>\/li><li>/g, "</li><li>")
-      .replace(/<\/li><li>\/li><\/ul>/g, "</li></ul>");
+    outcomes = outcomes
+    .replace(/\\n\\n/g, "</li><li>")
+    .replace(/<ul><li>\s*<\/li><li>/g, "<ul><li>")
+    .replace(/<\/li><li>\s*<\/li><li>/g, "</li><li>")
+    .replace(/<\/li><li>\s*<\/li><\/ul>/g, "</li></ul>")    
+    .replace(/<li>(\s|&nbsp;|&#160;)*<\/li>/gi, ""); // final sweep
+  
+
     
     outcomes = outcomes.replace("19</li><li>", "</li></ul>");
 
     outcomes = outcomes + "</li></ul>";
+    outcomes = outcomes.replace(/<\/li><li><\/li><\/ul>/g, "</li></ul>")
+    console.log(outcomes);
   }
 
   // Assessment
 
-  summative = summative.replace(/\\n/g, "<br>");
+  summative = summative.replace(/\\n/g, "<br>");  
   reassessment = reassessment.replace(/\\n/g, "<br>");
   assessment = `<strong>Assessment:</strong><br><br>${summative}<br><br><strong>Reassessment:</strong><br><br>${reassessment}`;
   assessment = assessment
