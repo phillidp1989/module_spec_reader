@@ -60,6 +60,12 @@ const deptMapping = [
         "Subject": '02',
     },
     {
+        "Code": "023",
+        "Long": "School of Nursing and Midwifery",
+        "Short": "Nursing and Midwifery",
+        "Subject": '02',
+    },
+    {
         "Code": "027",
         "Long": "Birmingham Law School",
         "Short": "Law",
