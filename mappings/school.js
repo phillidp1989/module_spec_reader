@@ -84,9 +84,15 @@ const schoolMapping = [
         "College": "15",
     },
     {
-        "Code": "074",
+        "Code": "085",
         "School": "School of Biomedical Sciences",
         "School2": "Institute of Clinical Sciences",
+        "College": "14",
+    },
+    {
+        "Code": "085",
+        "School": "School of Biomedical Science",
+        "School2": "Biomedical Sciences",
         "College": "14",
     },
     {
@@ -229,10 +235,11 @@ const schoolMapping = [
     },
     {
         "Code": "085",
-        "School": "School of Infection, Inflammation, Immunology",
+        "School": "School of Infection, Inflammation and Immunology",
         "School2": "School of Infec, Inflam, Immun",
         "College": "14",
     },
+    
     {
         "Code": "036",
         "School": "School of Sport, Exercise and Rehabilitation Sciences",
