@@ -106,6 +106,7 @@ async function createProgData(file) {
       .replace("BDepartment (if applicable)", "[")
       .replace("BDepartment(if applicable)", "[")
       .replace("B\n\nDepartment (if applicable)", "[")
+      .replace("B2Department", "*")
       .replace("2Department", "*")
       .replace("Department (if applicable)", "[")
       // Department End
@@ -323,7 +324,9 @@ async function createProgData(file) {
   let examWeighting = extract(delimited, "∏", "Ŋ").trim() + "%";
   let examLength = extract(delimited, "ꮮ", "𓋧").trim();
   let year = extract(delimited, "`", "¬").trim();
-  let school = extract(delimited, "{", "[").trim();
+  let school = delimited.includes("*") 
+    ? extract(delimited, "{", "*").trim()
+    : extract(delimited, "{", "[").trim();
   let department = delimited.includes("𓏉")
     ? extract(delimited, "[", "𓏉").trim()
     : extract(delimited, "[", "]").trim();    
@@ -370,7 +373,7 @@ async function createProgData(file) {
   let outcomes = extract(delimited1, "ꮧ", "ꮨ").trim();
   let formative = extract(delimited, "ꮩ", "ꮪ").trim();
   let summative = extract(delimited1, "ꮫ", "ꮬ").trim();
-  console.log(summative);
+  // console.log(summative);
   let exam = extract(delimited, "ꮭ", "ꮮ").trim();
   let examPeriod = extract(delimited, "ꮯ", "ꮰ").trim();
   let hurdles = extract(delimited, "ꮰ", "ꮱ").trim();
@@ -442,13 +445,14 @@ async function createProgData(file) {
   credits = credits.replace(/\D/g, "");
 
   // Dept
+  console.log(department)
   if (
     department.includes("Choose an item") ||
     department.includes("N/A") ||
     department.includes("NA")
   ) {
     department = school;
-  }
+  }  
 
   if (deptMapping.filter((item) => item.Long === department).length > 0) {
     deptCode = deptMapping.filter((item) => item.Long === department)[0].Code;
@@ -675,7 +679,7 @@ async function createProgData(file) {
 
     outcomes = outcomes + "</li></ul>";
     outcomes = outcomes.replace(/<\/li><li><\/li><\/ul>/g, "</li></ul>")
-    console.log(outcomes);
+    // console.log(outcomes);
   }
 
   // Assessment
