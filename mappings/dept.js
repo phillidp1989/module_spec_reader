@@ -216,6 +216,12 @@ const deptMapping = [
         "Subject": '02',
     },
     {
+        "Code": "173",
+        "Long": "Immunology and Immunotherapy",
+        "Short": "Inst of Immunol + Immunoth",
+        "Subject": '02',
+    },
+    {
         "Code": "182",
         "Long": "Personal Skills Award",
         "Short": "PSA",
