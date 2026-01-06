@@ -222,6 +222,12 @@ const schoolMapping = [
         "College": "12",
     },
     {
+        "Code": "035",
+        "School": "Social Policy and Society",
+        "School2": "Soc Pol and Society",
+        "College": "12",
+    },
+    {
         "Code": "084",
         "School": "School of Health Sciences",
         "School2": "School of Health Sciences",

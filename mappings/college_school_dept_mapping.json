@@ -1,0 +1,650 @@
+[
+  {
+    "College Code": "10",
+    "College Description": "LES",
+    "School Code": "022",
+    "School Description": "School of Geog Earth & Env Sci",
+    "Department Code": "019",
+    "Department Description": "Earth and Environ Sciences"
+  },
+  {
+    "College Code": "10",
+    "College Description": "LES",
+    "School Code": "022",
+    "School Description": "School of Geog Earth & Env Sci",
+    "Department Code": "022",
+    "Department Description": "Geography"
+  },
+  {
+    "College Code": "10",
+    "College Description": "LES",
+    "School Code": "022",
+    "School Description": "School of Geog Earth & Env Sci",
+    "Department Code": "244",
+    "Department Description": "Institute of Forest Research"
+  },
+  {
+    "College Code": "10",
+    "College Description": "LES",
+    "School Code": "033",
+    "School Description": "School of Psychology",
+    "Department Code": "033",
+    "Department Description": "School of Psychology"
+  },
+  {
+    "College Code": "10",
+    "College Description": "LES",
+    "School Code": "036",
+    "School Description": "Sport, Ex and Rehab Sciences",
+    "Department Code": "036",
+    "Department Description": "Sport, Ex and Rehab Sciences"
+  },
+  {
+    "College Code": "10",
+    "College Description": "LES",
+    "School Code": "036",
+    "School Description": "Sport, Ex and Rehab Sciences",
+    "Department Code": "235",
+    "Department Description": "Golf Studies"
+  },
+  {
+    "College Code": "10",
+    "College Description": "LES",
+    "School Code": "036",
+    "School Description": "Sport, Ex and Rehab Sciences",
+    "Department Code": "241",
+    "Department Description": "Physiotherapy"
+  },
+  {
+    "College Code": "10",
+    "College Description": "LES",
+    "School Code": "038",
+    "School Description": "School of Bioscience",
+    "Department Code": "038",
+    "Department Description": "School of Biosciences"
+  },
+  {
+    "College Code": "10",
+    "College Description": "LES",
+    "School Code": "045",
+    "School Description": "LES - College Hub",
+    "Department Code": "184",
+    "Department Description": "LES - College Hub"
+  },
+  {
+    "College Code": "11",
+    "College Description": "CAL",
+    "School Code": "027",
+    "School Description": "Birmingham Law School",
+    "Department Code": "027",
+    "Department Description": "Law"
+  },
+  {
+    "College Code": "11",
+    "College Description": "CAL",
+    "School Code": "046",
+    "School Description": "Eng, Drama, & Creative Studies",
+    "Department Code": "114",
+    "Department Description": "Drama and Theatre Arts"
+  },
+  {
+    "College Code": "11",
+    "College Description": "CAL",
+    "School Code": "046",
+    "School Description": "Eng, Drama, & Creative Studies",
+    "Department Code": "171",
+    "Department Description": "Shakespeare Institute"
+  },
+  {
+    "College Code": "11",
+    "College Description": "CAL",
+    "School Code": "046",
+    "School Description": "Eng, Drama, & Creative Studies",
+    "Department Code": "208",
+    "Department Description": "Eng, Drama, Creative Studies"
+  },
+  {
+    "College Code": "11",
+    "College Description": "CAL",
+    "School Code": "046",
+    "School Description": "Eng, Drama, & Creative Studies",
+    "Department Code": "236",
+    "Department Description": "English Literature"
+  },
+  {
+    "College Code": "11",
+    "College Description": "CAL",
+    "School Code": "046",
+    "School Description": "Eng, Drama, & Creative Studies",
+    "Department Code": "237",
+    "Department Description": "Linguistics and Communication"
+  },
+  {
+    "College Code": "11",
+    "College Description": "CAL",
+    "School Code": "046",
+    "School Description": "Eng, Drama, & Creative Studies",
+    "Department Code": "243",
+    "Department Description": "Film and Creative Writing"
+  },
+  {
+    "College Code": "11",
+    "College Description": "CAL",
+    "School Code": "047",
+    "School Description": "History and Cultures",
+    "Department Code": "108",
+    "Department Description": "African Studies & Anthropology"
+  },
+  {
+    "College Code": "11",
+    "College Description": "CAL",
+    "School Code": "047",
+    "School Description": "History and Cultures",
+    "Department Code": "225",
+    "Department Description": "History"
+  },
+  {
+    "College Code": "11",
+    "College Description": "CAL",
+    "School Code": "047",
+    "School Description": "History and Cultures",
+    "Department Code": "239",
+    "Department Description": "Classics, AH and Archaeology"
+  },
+  {
+    "College Code": "11",
+    "College Description": "CAL",
+    "School Code": "047",
+    "School Description": "History and Cultures",
+    "Department Code": "240",
+    "Department Description": "Byzantine, Ottoman, Greek Stud"
+  },
+  {
+    "College Code": "11",
+    "College Description": "CAL",
+    "School Code": "049",
+    "School Description": "Lan, Cult, Art Hist & Music",
+    "Department Code": "124",
+    "Department Description": "Art Hist, Cur and Vis Studies"
+  },
+  {
+    "College Code": "11",
+    "College Description": "CAL",
+    "School Code": "049",
+    "School Description": "Lan, Cult, Art Hist & Music",
+    "Department Code": "134",
+    "Department Description": "Music"
+  },
+  {
+    "College Code": "11",
+    "College Description": "CAL",
+    "School Code": "049",
+    "School Description": "Lan, Cult, Art Hist & Music",
+    "Department Code": "153",
+    "Department Description": "Languages for All"
+  },
+  {
+    "College Code": "11",
+    "College Description": "CAL",
+    "School Code": "049",
+    "School Description": "Lan, Cult, Art Hist & Music",
+    "Department Code": "227",
+    "Department Description": "Modern Languages"
+  },
+  {
+    "College Code": "11",
+    "College Description": "CAL",
+    "School Code": "050",
+    "School Description": "Phil, Theology and Religion",
+    "Department Code": "140",
+    "Department Description": "Philosophy"
+  },
+  {
+    "College Code": "11",
+    "College Description": "CAL",
+    "School Code": "050",
+    "School Description": "Phil, Theology and Religion",
+    "Department Code": "150",
+    "Department Description": "Theology and Religion"
+  },
+  {
+    "College Code": "11",
+    "College Description": "CAL",
+    "School Code": "050",
+    "School Description": "Phil, Theology and Religion",
+    "Department Code": "213",
+    "Department Description": "Phil, Theol & Religion"
+  },
+  {
+    "College Code": "11",
+    "College Description": "CAL",
+    "School Code": "051",
+    "School Description": "CAL - College Hub",
+    "Department Code": "193",
+    "Department Description": "CAL - College Hub"
+  },
+  {
+    "College Code": "12",
+    "College Description": "COS",
+    "School Code": "012",
+    "School Description": "Birmingham Business School",
+    "Department Code": "115",
+    "Department Description": "Economics"
+  },
+  {
+    "College Code": "12",
+    "College Description": "COS",
+    "School Code": "012",
+    "School Description": "Birmingham Business School",
+    "Department Code": "197",
+    "Department Description": "Marketing"
+  },
+  {
+    "College Code": "12",
+    "College Description": "COS",
+    "School Code": "012",
+    "School Description": "Birmingham Business School",
+    "Department Code": "211",
+    "Department Description": "Birmingham Business School"
+  },
+  {
+    "College Code": "12",
+    "College Description": "COS",
+    "School Code": "012",
+    "School Description": "Birmingham Business School",
+    "Department Code": "246",
+    "Department Description": "Accounting"
+  },
+  {
+    "College Code": "12",
+    "College Description": "COS",
+    "School Code": "012",
+    "School Description": "Birmingham Business School",
+    "Department Code": "247",
+    "Department Description": "Finance"
+  },
+  {
+    "College Code": "12",
+    "College Description": "COS",
+    "School Code": "012",
+    "School Description": "Birmingham Business School",
+    "Department Code": "252",
+    "Department Description": "Strategy and Int Business"
+  },
+  {
+    "College Code": "12",
+    "College Description": "COS",
+    "School Code": "012",
+    "School Description": "Birmingham Business School",
+    "Department Code": "261",
+    "Department Description": "Management"
+  },
+  {
+    "College Code": "12",
+    "College Description": "COS",
+    "School Code": "020",
+    "School Description": "School of Education",
+    "Department Code": "020",
+    "Department Description": "School of Education"
+  },
+  {
+    "College Code": "12",
+    "College Description": "COS",
+    "School Code": "020",
+    "School Description": "School of Education",
+    "Department Code": "228",
+    "Department Description": "Teacher Education"
+  },
+  {
+    "College Code": "12",
+    "College Description": "COS",
+    "School Code": "020",
+    "School Description": "School of Education",
+    "Department Code": "229",
+    "Department Description": "Education & Social Justice"
+  },
+  {
+    "College Code": "12",
+    "College Description": "COS",
+    "School Code": "020",
+    "School Description": "School of Education",
+    "Department Code": "231",
+    "Department Description": "Disab, Inclusion & Spec Needs"
+  },
+  {
+    "College Code": "12",
+    "College Description": "COS",
+    "School Code": "035",
+    "School Description": "School of Soc Pol and Society",
+    "Department Code": "122",
+    "Department Description": "Health Services Management Cen"
+  },
+  {
+    "College Code": "12",
+    "College Description": "COS",
+    "School Code": "035",
+    "School Description": "School of Soc Pol and Society",
+    "Department Code": "262",
+    "Department Description": "Soc Policy, Sociology & Crimin"
+  },
+  {
+    "College Code": "12",
+    "College Description": "COS",
+    "School Code": "035",
+    "School Description": "School of Soc Pol and Society",
+    "Department Code": "263",
+    "Department Description": "Social Work & Social Care"
+  },
+  {
+    "College Code": "12",
+    "College Description": "COS",
+    "School Code": "053",
+    "School Description": "Government",
+    "Department Code": "113",
+    "Department Description": "International Development"
+  },
+  {
+    "College Code": "12",
+    "College Description": "COS",
+    "School Code": "053",
+    "School Description": "Government",
+    "Department Code": "131",
+    "Department Description": "Public Administration and Poli"
+  },
+  {
+    "College Code": "12",
+    "College Description": "COS",
+    "School Code": "053",
+    "School Description": "Government",
+    "Department Code": "142",
+    "Department Description": "Political Sci & Intern'tl Stud"
+  },
+  {
+    "College Code": "12",
+    "College Description": "COS",
+    "School Code": "053",
+    "School Description": "Government",
+    "Department Code": "275",
+    "Department Description": "Birmingham Leadership Inst"
+  },
+  {
+    "College Code": "12",
+    "College Description": "COS",
+    "School Code": "054",
+    "School Description": "COS - College Hub",
+    "Department Code": "200",
+    "Department Description": "COS - College Hub"
+  },
+  {
+    "College Code": "13",
+    "College Description": "EPS",
+    "School Code": "014",
+    "School Description": "Chemistry",
+    "Department Code": "014",
+    "Department Description": "Chemistry"
+  },
+  {
+    "College Code": "13",
+    "College Description": "EPS",
+    "School Code": "016",
+    "School Description": "Computer Science",
+    "Department Code": "016",
+    "Department Description": "Computer Science"
+  },
+  {
+    "College Code": "13",
+    "College Description": "EPS",
+    "School Code": "029",
+    "School Description": "Mathematics",
+    "Department Code": "029",
+    "Department Description": "Mathematics"
+  },
+  {
+    "College Code": "13",
+    "College Description": "EPS",
+    "School Code": "032",
+    "School Description": "Physics and Astronomy",
+    "Department Code": "032",
+    "Department Description": "Physics & Astronomy"
+  },
+  {
+    "College Code": "13",
+    "College Description": "EPS",
+    "School Code": "056",
+    "School Description": "Chemical Engineering",
+    "Department Code": "013",
+    "Department Description": "Chemical Engineering"
+  },
+  {
+    "College Code": "13",
+    "College Description": "EPS",
+    "School Code": "058",
+    "School Description": "Metallurgy and Materials",
+    "Department Code": "031",
+    "Department Description": "Metallurgy & Materials"
+  },
+  {
+    "College Code": "13",
+    "College Description": "EPS",
+    "School Code": "061",
+    "School Description": "EPS - College Hub",
+    "Department Code": "202",
+    "Department Description": "EPS - College Hub"
+  },
+  {
+    "College Code": "13",
+    "College Description": "EPS",
+    "School Code": "080",
+    "School Description": "School of Engineering",
+    "Department Code": "015",
+    "Department Description": "Civil Engineering"
+  },
+  {
+    "College Code": "13",
+    "College Description": "EPS",
+    "School Code": "080",
+    "School Description": "School of Engineering",
+    "Department Code": "021",
+    "Department Description": "Elec, Elec & Sys Engineering"
+  },
+  {
+    "College Code": "13",
+    "College Description": "EPS",
+    "School Code": "080",
+    "School Description": "School of Engineering",
+    "Department Code": "028",
+    "Department Description": "Mechanical Engineering"
+  },
+  {
+    "College Code": "13",
+    "College Description": "EPS",
+    "School Code": "080",
+    "School Description": "School of Engineering",
+    "Department Code": "260",
+    "Department Description": "Engineering"
+  },
+  {
+    "College Code": "14",
+    "College Description": "CMH",
+    "School Code": "063",
+    "School Description": "CMH - College Hub",
+    "Department Code": "207",
+    "Department Description": "CMH - College Hub"
+  },
+  {
+    "College Code": "14",
+    "College Description": "CMH",
+    "School Code": "083",
+    "School Description": "School of Medical Sciences",
+    "Department Code": "106",
+    "Department Description": "Inst of Card Sciences"
+  },
+  {
+    "College Code": "14",
+    "College Description": "CMH",
+    "School Code": "083",
+    "School Description": "School of Medical Sciences",
+    "Department Code": "128",
+    "Department Description": "Inst of Cancer / Genomic Sci"
+  },
+  {
+    "College Code": "14",
+    "College Description": "CMH",
+    "School Code": "083",
+    "School Description": "School of Medical Sciences",
+    "Department Code": "215",
+    "Department Description": "Birmingham Medical School"
+  },
+  {
+    "College Code": "14",
+    "College Description": "CMH",
+    "School Code": "083",
+    "School Description": "School of Medical Sciences",
+    "Department Code": "218",
+    "Department Description": "Cancer Research UK CTU"
+  },
+  {
+    "College Code": "14",
+    "College Description": "CMH",
+    "School Code": "083",
+    "School Description": "School of Medical Sciences",
+    "Department Code": "257",
+    "Department Description": "Metabolism and Systems Science"
+  },
+  {
+    "College Code": "14",
+    "College Description": "CMH",
+    "School Code": "084",
+    "School Description": "School of Health Sciences",
+    "Department Code": "018",
+    "Department Description": "Dentistry"
+  },
+  {
+    "College Code": "14",
+    "College Description": "CMH",
+    "School Code": "084",
+    "School Description": "School of Health Sciences",
+    "Department Code": "023",
+    "Department Description": "Nursing and Midwifery"
+  },
+  {
+    "College Code": "14",
+    "College Description": "CMH",
+    "School Code": "084",
+    "School Description": "School of Health Sciences",
+    "Department Code": "205",
+    "Department Description": "Pharmacy"
+  },
+  {
+    "College Code": "14",
+    "College Description": "CMH",
+    "School Code": "084",
+    "School Description": "School of Health Sciences",
+    "Department Code": "216",
+    "Department Description": "Applied Health Sciences"
+  },
+  {
+    "College Code": "14",
+    "College Description": "CMH",
+    "School Code": "084",
+    "School Description": "School of Health Sciences",
+    "Department Code": "217",
+    "Department Description": "Bhm Clinical Trial Unit (BCTU)"
+  },
+  {
+    "College Code": "14",
+    "College Description": "CMH",
+    "School Code": "084",
+    "School Description": "School of Health Sciences",
+    "Department Code": "242",
+    "Department Description": "Dental Hygiene and Therapy"
+  },
+  {
+    "College Code": "14",
+    "College Description": "CMH",
+    "School Code": "085",
+    "School Description": "School of Infec, Inflam, Immun",
+    "Department Code": "173",
+    "Department Description": "Inst of Immunol + Immunoth"
+  },
+  {
+    "College Code": "14",
+    "College Description": "CMH",
+    "School Code": "085",
+    "School Description": "School of Infec, Inflam, Immun",
+    "Department Code": "204",
+    "Department Description": "Biomedical Sciences"
+  },
+  {
+    "College Code": "14",
+    "College Description": "CMH",
+    "School Code": "085",
+    "School Description": "School of Infec, Inflam, Immun",
+    "Department Code": "258",
+    "Department Description": "Inst of Inflammation / Ageing"
+  },
+  {
+    "College Code": "14",
+    "College Description": "CMH",
+    "School Code": "085",
+    "School Description": "School of Infec, Inflam, Immun",
+    "Department Code": "259",
+    "Department Description": "Microbes, Infection, Microbms"
+  },
+  {
+    "College Code": "15",
+    "College Description": "Corporate Services",
+    "School Code": "039",
+    "School Description": "Academic Pract and Org Dev",
+    "Department Code": "039",
+    "Department Description": "People and Organisational Deve"
+  },
+  {
+    "College Code": "15",
+    "College Description": "Corporate Services",
+    "School Code": "068",
+    "School Description": "Academic Services",
+    "Department Code": "182",
+    "Department Description": "The Birmingham Award"
+  },
+  {
+    "College Code": "15",
+    "College Description": "Corporate Services",
+    "School Code": "068",
+    "School Description": "Academic Services",
+    "Department Code": "214",
+    "Department Description": "Birmingham International Acad"
+  },
+  {
+    "College Code": "15",
+    "College Description": "Corporate Services",
+    "School Code": "068",
+    "School Description": "Academic Services",
+    "Department Code": "224",
+    "Department Description": "Academic Services"
+  },
+  {
+    "College Code": "15",
+    "College Description": "Corporate Services",
+    "School Code": "079",
+    "School Description": "Educational Enterprise",
+    "Department Code": "255",
+    "Department Description": "Wiley"
+  },
+  {
+    "College Code": "15",
+    "College Description": "Corporate Services",
+    "School Code": "079",
+    "School Description": "Educational Enterprise",
+    "Department Code": "278",
+    "Department Description": "edX"
+  },
+  {
+    "College Code": "15",
+    "College Description": "Corporate Services",
+    "School Code": "082",
+    "School Description": "HEFI",
+    "Department Code": "272",
+    "Department Description": "Digital and Educ Development"
+  }
+]

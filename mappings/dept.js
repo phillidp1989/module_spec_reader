@@ -138,6 +138,12 @@ const deptMapping = [
         "Subject": '08',
     },
     {
+        "Code": "113",
+        "Long": "Public Administration and Policy",
+        "Short": "Public Administration and Policy",
+        "Subject": '08',
+    },
+    {
         "Code": "114",
         "Long": "Drama and Theatre Arts",
         "Short": "Drama and Theatre Arts",
@@ -330,6 +336,12 @@ const deptMapping = [
         "Subject": '02',
     },
     {
+        "Code": "216",
+        "Long": "Department of Applied Health Research",
+        "Short": "Inst of Applied Health Res",
+        "Subject": '02',
+    },
+    {
         "Code": "217",
         "Long": "Birmingham Clinical Trials Unit (BCTU)",
         "Short": "Bhm Clinical Trial Unit (BCTU)",
@@ -506,6 +518,12 @@ const deptMapping = [
     {
         "Code": "257",
         "Long": "Institute of Metabolism and Systems Research",
+        "Short": "Inst of Metabolism and Sys Res",
+        "Subject": '02',
+    },
+    {
+        "Code": "257",
+        "Long": "Department of Metabolism and Systems Science",
         "Short": "Inst of Metabolism and Sys Res",
         "Subject": '02',
     },

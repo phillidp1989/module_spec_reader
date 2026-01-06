@@ -3,16 +3,341 @@ const path = require("path");
 const fs = require("fs");
 const textract = require("textract");
 const pify = require("pify");
-if (typeof XLSX == "undefined") XLSX = require("xlsx");
+const XLSX = require("xlsx");
 const deptMapping = require("../mappings/dept.js");
 const schoolMapping = require("../mappings/school.js");
 const hecosMapping = require("../mappings/hecos.js");
 const ccMapping = require("../mappings/cc.js");
-const { log } = require("console");
+const fieldPatterns = require("../mappings/fieldPatterns.js");
+const collegeSchoolDeptMapping = require("../mappings/college_school_dept_mapping.json");
 
-// Function to extract data from document
+// Uploads directory
+const UPLOADS_DIR = path.join(__dirname, '..', 'uploads');
+
+// Function to extract data from document with safe boundary checking
 function extract(string, first, last) {
-  return string.substring(string.indexOf(first) + 1, string.indexOf(last));
+  const startIndex = string.indexOf(first);
+  const endIndex = string.indexOf(last);
+
+  // If either delimiter is not found, or end comes before start, return empty string
+  if (startIndex === -1 || endIndex === -1 || endIndex <= startIndex) {
+    return '';
+  }
+
+  return string.substring(startIndex + 1, endIndex);
+}
+
+/**
+ * Apply field replacements from configuration with logging
+ * @param {string} text - The text to process
+ * @param {Array} fieldsConfig - Array of field configurations
+ * @param {string} fileName - Name of file being processed (for logging)
+ * @returns {string} - Text with patterns replaced by delimiters
+ */
+function applyFieldReplacements(text, fieldsConfig, fileName) {
+  let result = text;
+  const unmatchedFields = [];
+
+  for (const field of fieldsConfig) {
+    let matched = false;
+
+    // Try each pattern variation (first match wins)
+    for (const pattern of field.patterns) {
+      if (result.includes(pattern)) {
+        result = result.replace(pattern, field.delimiter);
+        matched = true;
+        break;
+      }
+    }
+
+    // Track unmatched required fields
+    if (!matched && field.required !== false) {
+      unmatchedFields.push(field.name);
+    }
+  }
+
+  // Log warnings for unmatched fields
+  if (unmatchedFields.length > 0) {
+    console.warn(`[${fileName}] Unmatched fields: ${unmatchedFields.join(', ')}`);
+  }
+
+  return result;
+}
+
+/**
+ * Apply HTML cleanup patterns
+ * @param {string} text - The text to clean
+ * @returns {string} - Cleaned text
+ */
+function applyHtmlCleanup(text) {
+  let result = text;
+  for (const { pattern, replacement } of fieldPatterns.htmlCleanupPatterns) {
+    // Replace all occurrences
+    while (result.includes(pattern)) {
+      result = result.replace(pattern, replacement);
+    }
+  }
+  return result;
+}
+
+/**
+ * Apply fallback patterns if delimiter not found
+ * @param {string} text - The text to process
+ * @returns {string} - Text with fallback patterns applied
+ */
+function applyFallbackPatterns(text) {
+  let result = text;
+
+  for (const fallback of fieldPatterns.fallbackPatterns) {
+    if (!result.includes(fallback.checkDelimiter)) {
+      for (const { pattern, delimiter } of fallback.patterns) {
+        if (result.includes(pattern)) {
+          result = result.replace(pattern, delimiter);
+          break;
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Apply outcomes cleanup patterns
+ * @param {string} text - The text to process
+ * @returns {string} - Text with outcomes cleanup applied
+ */
+function applyOutcomesCleanup(text) {
+  let result = text;
+  for (const { pattern, replacement } of fieldPatterns.outcomesCleanupPatterns) {
+    result = result.replace(pattern, replacement);
+  }
+  return result;
+}
+
+/**
+ * Normalize department name for fuzzy comparison
+ * @param {string} name - Department name to normalize
+ * @returns {string} - Normalized name
+ */
+function normalizeDeptName(name) {
+  if (!name) return '';
+  return name
+    .toLowerCase()
+    .replace(/^school of /i, '')
+    .replace(/^institute of /i, '')
+    .replace(/^department of /i, '')
+    .replace(/[^\w\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Calculate word overlap score between two strings (0-1)
+ * @param {string} str1 - First string
+ * @param {string} str2 - Second string
+ * @returns {number} - Overlap score between 0 and 1
+ */
+function wordOverlapScore(str1, str2) {
+  const words1 = new Set(normalizeDeptName(str1).split(' ').filter(w => w.length > 2));
+  const words2 = new Set(normalizeDeptName(str2).split(' ').filter(w => w.length > 2));
+  if (words1.size === 0 || words2.size === 0) return 0;
+  const intersection = [...words1].filter(w => words2.has(w));
+  const union = new Set([...words1, ...words2]);
+  return intersection.length / union.size;
+}
+
+/**
+ * Find best fuzzy match for department name
+ * @param {string} department - Department name to match
+ * @param {Array} mapping - Department mapping array
+ * @returns {Object|null} - Best match with item and score, or null if no good match
+ */
+function findFuzzyDeptMatch(department, mapping) {
+  if (!department) return null;
+  const normalized = normalizeDeptName(department);
+  if (!normalized) return null;
+
+  let bestMatch = null;
+  let bestScore = 0;
+
+  for (const item of mapping) {
+    const longNorm = normalizeDeptName(item.Long);
+    const shortNorm = normalizeDeptName(item.Short || '');
+
+    // Check substring containment (either direction)
+    if (longNorm && (longNorm.includes(normalized) || normalized.includes(longNorm))) {
+      const score = Math.min(normalized.length, longNorm.length) /
+                    Math.max(normalized.length, longNorm.length);
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = item;
+      }
+    }
+
+    if (shortNorm && (shortNorm.includes(normalized) || normalized.includes(shortNorm))) {
+      const score = Math.min(normalized.length, shortNorm.length) /
+                    Math.max(normalized.length, shortNorm.length);
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = item;
+      }
+    }
+
+    // Check word overlap
+    const overlapLong = wordOverlapScore(department, item.Long);
+    if (overlapLong > bestScore) {
+      bestScore = overlapLong;
+      bestMatch = item;
+    }
+
+    if (item.Short) {
+      const overlapShort = wordOverlapScore(department, item.Short);
+      if (overlapShort > bestScore) {
+        bestScore = overlapShort;
+        bestMatch = item;
+      }
+    }
+  }
+
+  // Only return if score is above threshold (50%)
+  if (bestMatch && bestScore >= 0.5) {
+    return {
+      item: bestMatch,
+      score: bestScore
+    };
+  }
+  return null;
+}
+
+/**
+ * Validate that college, school, and department codes match according to the hierarchy mapping
+ * @param {string} collegeCode - College code
+ * @param {string} schoolCode - School code
+ * @param {string} deptCode - Department code
+ * @returns {Object|null} - Validation result with expected values if mismatch, or null if can't validate
+ */
+function validateHierarchy(collegeCode, schoolCode, deptCode) {
+  if (!collegeCode || !schoolCode || !deptCode) return null;
+
+  const match = collegeSchoolDeptMapping.find(
+    m => m["College Code"] === collegeCode &&
+         m["School Code"] === schoolCode &&
+         m["Department Code"] === deptCode
+  );
+
+  if (match) return { valid: true };
+
+  // Find what the correct values should be based on deptCode
+  const byDept = collegeSchoolDeptMapping.find(m => m["Department Code"] === deptCode);
+  if (byDept) {
+    return {
+      valid: false,
+      expected: {
+        collegeCode: byDept["College Code"],
+        collegeName: byDept["College Description"],
+        schoolCode: byDept["School Code"],
+        schoolName: byDept["School Description"]
+      },
+      message: `Department ${deptCode} belongs to School ${byDept["School Code"]} (${byDept["School Description"]}), College ${byDept["College Code"]} (${byDept["College Description"]})`
+    };
+  }
+  return null;
+}
+
+/**
+ * Get filtered department options based on known school or college
+ * Includes cascading data: subject, cc, jacs, hecos for each department
+ * @param {string} schoolCode - School code (if known)
+ * @param {string} collegeCode - College code (if known)
+ * @returns {Array} - Array of department options with full data
+ */
+function getDeptOptions(schoolCode, collegeCode) {
+  let filtered = collegeSchoolDeptMapping;
+
+  if (schoolCode) {
+    filtered = filtered.filter(m => m["School Code"] === schoolCode);
+  } else if (collegeCode) {
+    filtered = filtered.filter(m => m["College Code"] === collegeCode);
+  }
+
+  // Return unique departments WITH related data
+  const uniqueDepts = [...new Map(filtered.map(m => [m["Department Code"], m])).values()];
+
+  return uniqueDepts.map(m => {
+    const deptCode = m["Department Code"];
+    // Look up subject from deptMapping
+    const deptInfo = deptMapping.find(d => d.Code === deptCode);
+    // Look up hecos/jacs
+    const hecosInfo = hecosMapping.find(h => h.Code === deptCode);
+    // Look up cc
+    const ccInfo = ccMapping.find(c => c["Banner - Dept Level5"] === deptCode);
+
+    return {
+      code: deptCode,
+      name: m["Department Description"],
+      schoolCode: m["School Code"],
+      schoolName: m["School Description"],
+      collegeCode: m["College Code"],
+      collegeName: m["College Description"],
+      subject: deptInfo?.Subject || '',
+      hecos: hecosInfo?.HECoS || '',
+      jacs: hecosInfo?.JACS || '',
+      cc: ccInfo?.["New CC"] || ''
+    };
+  }).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
+ * Get filtered school options based on known department or college
+ * @param {string} deptCode - Department code (if known)
+ * @param {string} collegeCode - College code (if known)
+ * @returns {Array} - Array of school options with college info
+ */
+function getSchoolOptions(deptCode, collegeCode) {
+  if (deptCode) {
+    // Dept found - return the single school it belongs to
+    const match = collegeSchoolDeptMapping.find(m => m["Department Code"] === deptCode);
+    if (match) {
+      return [{
+        code: match["School Code"],
+        name: match["School Description"],
+        collegeCode: match["College Code"],
+        collegeName: match["College Description"]
+      }];
+    }
+  }
+
+  let filtered = collegeSchoolDeptMapping;
+  if (collegeCode) {
+    filtered = filtered.filter(m => m["College Code"] === collegeCode);
+  }
+
+  // Return unique schools with college info sorted by name
+  const unique = [...new Map(filtered.map(m => [
+    m["School Code"],
+    {
+      code: m["School Code"],
+      name: m["School Description"],
+      collegeCode: m["College Code"],
+      collegeName: m["College Description"]
+    }
+  ])).values()];
+
+  return unique.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
+ * Get all college options
+ * @returns {Array} - Array of college options {code, name}
+ */
+function getCollegeOptions() {
+  const unique = [...new Map(collegeSchoolDeptMapping.map(m => [
+    m["College Code"],
+    { code: m["College Code"], name: m["College Description"] }
+  ])).values()];
+
+  return unique.sort((a, b) => a.name.localeCompare(b.name));
 }
 
 async function createProgData(file) {
@@ -24,312 +349,108 @@ async function createProgData(file) {
     file,
     config
     );
-    console.log('here');
-
-  //   textract.fromFileWithPath(file, config, async function (error, text, final) {
 
   text = JSON.stringify(text);
-  // console.log(text);
 
-  let delimited1 = text
-    // Description start
-    .replace("accessible to prospective students.\\n\\n", "ꮥ")
-    .replace("accessible to prospective students.\\n", "ꮥ")
+  // Get filename for logging
+  const fileName = path.basename(file);
 
-    .replace("Module description", "ꮤ")
-    
-      // Description End
-      .replace("accessible to prospective students.", "ꮥ")
-    
-      // Outcomes Start
-      
+  // Apply textract field replacements (for description/outcomes with line breaks)
+  let delimited1 = applyFieldReplacements(text, fieldPatterns.textractFields, fileName);
 
+  const data = await reader.getText(file);
 
-    // Description end
-    .replace("\\nQ\\n\\nModule outcomes:", "ꮦ")
-    .replace("\\nQ\\nModule outcomes:", "ꮦ")
-    .replace("Q\\n\\nModule outcomes:", "ꮦ")
-    .replace("QModule outcomes:", "ꮦ")
-      .replace("Module outcomes:", "ꮦ")
-    // Learning outcomes start
-    .replace("By the end of the module students should be able to:\\n\\n", "ꮧ")
-    .replace("By the end of the module students should be able to:\\n", "ꮧ")
-    // Learning outcomes end
-    .replace("\\n\\nOpportunities for formative assessment ", "ꮨ")
-    .replace("\\nOpportunities for formative assessment ", "ꮨ")
-    //   Summative assessment start
-    .replace(
-      "e.g. 1hr written unseen examination (50%), 1500 word essay (50%)\\n",
-      "ꮫ"
-    )
-    .replace(
-      "e.g. 1hr written unseen examination (50%), 500 word essay (10%), group presentation (40%), if required",
-      "ꮫ"
-    )
-    .replace(
-      "e.g. 2hr written unseen examination (50%), 1500 word essay (50%)",
-      "ꮫ"
-    )
-    //   Summative assessment end
-    .replace("B Q\\n\\nIf there is an examination", "ꮬ")
-    .replace("B Q\\n\\n\\nIf there is an examination", "ꮬ")
-    .replace("B Q\\nIf there is an examination", "ꮬ")
-    .replace("If there is an examination", "ꮬ")
-    // Reassessment start
-    .replace("meet the module's learning outcomes.\\n", "ꮲ")
-    .replace("meet the module’s learning outcomes.\\n\\n", "ꮲ")
-    .replace("meet the module’s learning outcomes.", "ꮲ")
-    // Reassessment end
-    .replace(/\\nB Q\\n\\nWill students come into contact/, "ꮳ")
-    .replace("Will students come into contact", "ꮳ");
-  // .replace("B Q\\nWill students come into contact", "ꮳ")
+  // === STEP 1: Extract Year from FULL document (proposal section has the year) ===
+  const yearPatterns = [
+    { pattern: 'QDate of implementation (in terms of academic sessions)', delimiter: '`' },
+    { pattern: 'Date of implementation (in terms of academic sessions)', delimiter: '`' }
+  ];
+  const yearEndPatterns = [
+    { pattern: 'BRationale', delimiter: '¬' },
+    { pattern: 'Rationale', delimiter: '¬' }
+  ];
 
-  const data = await reader.getText(file);  
+  let yearData = data;
+  for (const p of yearPatterns) {
+    if (yearData.includes(p.pattern)) {
+      yearData = yearData.replace(p.pattern, p.delimiter);
+      break;
+    }
+  }
+  for (const p of yearEndPatterns) {
+    if (yearData.includes(p.pattern)) {
+      yearData = yearData.replace(p.pattern, p.delimiter);
+      break;
+    }
+  }
+  const yearExtracted = extract(yearData, '`', '¬').trim();
+  console.log(`[${fileName}] Year extracted from full document: "${yearExtracted}"`);
 
-      // console.log(data);
-      let delimited = data
-      // Year Start
-      .replace("QDate of implementation (in terms of academic sessions)", "`")
-      .replace("Date of implementation (in terms of academic sessions)", "`")
-      // Year End / Rationale Start
-      .replace("BRationale", "¬")
-      .replace("Rationale", "¬")
-    
-      // School Start
-      .replace("B1School/Institute that owns the module", "!")
-      .replace("School/Institute that owns the module", "{")
-      .replace("B1School that owns the module", "{")
-      .replace("1School that owns the module", "!")
-      .replace("School that owns the module", "{")
-      // Department Start
-      // .replace("B2Department (if applicable)", "[")
-      .replace("BDepartment (if applicable)", "[")
-      .replace("BDepartment(if applicable)", "[")
-      .replace("B\n\nDepartment (if applicable)", "[")
-      .replace("B2Department", "*")
-      .replace("2Department", "*")
-      .replace("Department (if applicable)", "[")
-      // Department End
-      .replace("BIs the", "]")
-      .replace("B\n\nIs the", "]")
-      .replace("Is the module delivered", "]")
-    
-      // HTML cleanup
-      .replace("&amp;", "&")
-    
-      // Title Start
-      .replace("3Module title", "X")
-      .replace("QModule title ", "ʓ")      
-      .replace("BModule title", "𓏉")
-      .replace("B3Module title", "𓏉")      
-      .replace("N/AModule title", "ʓ")
-      .replace("Module title", "ʓ")
-    
-      // Code Start
-      .replace("B QModule code (if known)", "#")
-      .replace("QModule code (if known)", "#")
-      .replace("B QModule code(s) (if known)", "#")
-      .replace("B QModule code (if known)", "#")
-      .replace("Module code(s) (if known)", "#")
-      
-      
-    
-      // Code End / Level Start
-      .replace("BModule level", "=")
-      .replace("Module level", "=")
-    
-      // Level End / Credits Start
-      .replace("B QModule credits ", "@")
-      .replace("Module credits ", "@")
-    
-      // Credits End / Attribute Start
-      .replace("B QModule attribute", "$")
-      .replace("Module attribute", "$")
-    
-      // Attribute End / Semester Start
-      .replace("B QSemester in which the module will run", "⸮")
-      .replace("BSemester in which the module will run", "⸮")
-      .replace("Semester in which the module will run", "⸮")
-    
-      // Semester End
-      .replace("If delivered multiple times a year,", "ﱙ")
-      .replace("BProgrammes on which the module is available (please state the programme title and code)", "ﱙ")
-    
-      // Compulsory Start
-      .replace("registered on this module code):", "Ǖ")
-      // Optional Start
-      .replace("As an optional module:", "Ê")
-      // Optional End
-      .replace("Confirmation that module registrations ", "À")
-    
-      // Prerequisite Start
-      // .replace("exchange students, if applicable)", "Á")
-      .replace("as well as attempted", "Á")
-    
-      // Prerequisite End
-      .replace("B13.2State if there is any other/prior", "☩")
-      .replace("13.2State if there is any other/prior", "☩")
-      .replace("13.1State if there is any other/prior", "☩")
-    
-      // Corequisite Start
-      .replace("BState the name and code of any co-requisite modules on which students must also register in the same session", "Â")
-      .replace("State the name and code of any co-requisite modules on which students must also register in the same session", "Â")
-    
-      // Corequisite End / Campus Start
-      .replace("BWhere will the teaching take place? ", "Ã")
-      .replace("BWhere will the teaching take place?", "Ã")
-      .replace("Where will the teaching take place?", "Ã")
-    
-      // Campus End / Delivery Notes Start
-      .replace("If ‘other’ please state here:", "Ä")
-      .replace("B Q SFComment briefly", "Ä")
-    
-      // Delivery Notes End / Exemptions Start
-      .replace("Please detail any exemptions from Regulations, including approved exceptions relating to the semesterised teaching year structure", "Å")
-      .replace("Please detail any exemptions from Regulations", "Å")      
-    
-      // Exemptions End / Lecture Start
-      .replace("QTotal student", "Æ")
-      .replace("Total student", "Æ")
-      .replace("SF16.1Lecture", "Ç")
-      .replace("SFLecture", "Ç")
-      .replace("Lecture", "Ç")
-    
-      // Lecture End / Seminar Start
-      .replace("16.2Seminar", "È")
-      .replace("Seminar", "È")
-    
-      // Seminar End / Tutorial Start
-      .replace("16.3Tutorial", "É")
-      .replace("Tutorial", "É")
-    
-      // Tutorial End / Project Supervision Start
-      .replace("16.4Project supervision", "ꮛ")
-      .replace("Project supervision", "ꮛ")
-    
-      // Project Supervision End / Demonstration Start
-      .replace("16.5Demonstration", "ꮜ")
-      .replace("Demonstration", "ꮜ")
-    
-      // Demonstration End / Practical Start
-      .replace("16.6Practical classes/workshops", "ꮝ")
-      .replace("Practical classes/workshops", "ꮝ")
-    
-      // Practical End / Lab Start
-      .replace("16.7Supervised time in a studio/workshop/lab", "ꮞ")
-      .replace("Supervised time in a studio/workshop/lab", "ꮞ")
-    
-      // Lab End / Fieldwork Start
-      .replace("16.8Fieldwork", "ꮟ")
-      .replace("Fieldwork", "ꮟ")
-    
-      // Fieldwork End / External Visits Start
-      .replace("16.9External visits", "ꮠ")
-      .replace("External visits", "ꮠ")
-    
-      // External Visits End / Work-Based Learning Start
-      .replace("16.10Work based learning/placement", "ꮡ")
-      .replace("Work based learning/placement", "ꮡ")
-    
-      // Work-Based Learning End / Guided Study Start
-      .replace("16.11Guided independent study", "ꮢ")
-      .replace("Guided independent study", "ꮢ")
-    
-      // Guided Study End / Study Abroad Start
-      .replace("16.12Study abroad", "ꮣ")
-      .replace("Study abroad", "ꮣ")
-    
-      // Study Abroad End / Description Start
-      .replace("Module descriptionRecommended:", "ꮤ")
-      .replace("Module description", "ꮤ")
-    
-      // Description End
-      .replace("accessible to prospective students.", "ꮥ")
-    
-      // Outcomes Start
-      .replace("QModule outcomes:", "ꮦ")
-      .replace("Module outcomes:", "ꮦ")
-      .replace("Subject Benchmark Statements.", "ꮧ")
-      .replace("ꮧ Schools/Institutes are also encouraged to refer to the Birmingham Graduate Attributes. ", "ꮧ")
-      .replace("ꮧ Schools are also encouraged to refer to the Birmingham Graduate Attributes. ", "ꮧ")
-    
-      // Outcomes End / Formative Start
-      .replace("Opportunities for formative assessment ", "ꮨ")
-    
-      // Formative End / Summative Start
-      .replace("contributes to the overall module mark)", "ꮩ")
-    
-      // Summative End
-      .replace("If the module is wholly or partly assessed by coursework, please state the overall weighting:", "ɸ")
-      .replace("QIf the module is wholly or partly assessed by examination, please state the overall weighting:", "∏")
-    
-      // Summative Extra Details
-      .replace("Additional information on the method(s) of summative assessment", "Ŋ")
-      .replace("QMethod(s) of summative", "ꮪ")
-      .replace("e.g. 1hr written unseen examination (50%), 1500 word essay (50%)", "ꮫ")
-      .replace("e.g. 1hr written unseen examination (50%), 500 word essay (10%), group presentation (40%), if required", "ꮫ")
-      .replace("e.g. 1hr written unseen examination (50%), 500-word essay (10%), group presentation (40%), if required", "ꮫ")
-    
-      // Exam Start
-      .replace("B QIf there is an examination", "ꮬ")
-      .replace("timetabled?", "ꮭ")
-    
-      // Exam End / Exam Length Start
-      .replace("If ‘yes’ please specify the length of the examination:", "ꮮ")
-      .replace("If ‘yes’ please specify the length of the examination:", "𓋧")
-    
-      // Exam Period
-      .replace("select examination period", "ꮯ")
-    
-      // Hurdles
-      .replace("BPlease describe any internal hurdles", "ꮰ")
-      .replace("Please describe any internal hurdles", "ꮰ")
-    
-      // Reassessment
-      .replace("B QMethod(s) of reassessment", "ꮱ")
-      .replace("Method(s) of reassessment", "ꮱ")
-      .replace("meet the module’s learning outcomes.", "ꮲ")
-    
-      // Contact
-      .replace("B QWill students come into contact", "ꮳ")
-      .replace("Module lead:", "ꮴ")
-      .replace("Module leads:", "ꮴ")
-      .replace("Module co-leads:", "ꮴ")
-      .replace("School administrative contact", "ꮵ")
-      .replace("School/Institute administrative contact", "ꮵ")
-    
-      // HTML cleanup
-      .replace("&lt;", "<")
-      .replace("&gt;", ">")
-      .replace("&amp;", "&")
-      .replace("&amp;", "&")
-      .replace("&quot;", '"')  
+  // === STEP 2: Find Module Specification section and process from there ===
+  const moduleSpecMarker = "Module Specification";
+  const moduleSpecIndex = data.indexOf(moduleSpecMarker);
+  let dataToProcess = data;
 
-    
-  if (!delimited.includes("ꮮ")) {
-    delimited = delimited.replace(
-      "If ‘yes’ is this available for students to take overseas?",
-      "ꮮ"
-    );
+  if (moduleSpecIndex !== -1) {
+    console.log(`[${fileName}] Found "Module Specification" at position ${moduleSpecIndex}, processing from there`);
+    dataToProcess = data.substring(moduleSpecIndex);
+  } else {
+    console.log(`[${fileName}] No "Module Specification" marker found, processing entire document`);
   }
 
-  if (!delimited.includes("ꮮ")) {
-    delimited = delimited.replace("BIf there is an examination,", "ꮮ");
+  // Apply reader field replacements (main field extraction) - to spec section only
+  let delimited = applyFieldReplacements(dataToProcess, fieldPatterns.readerFields, fileName);
+
+  // Apply HTML cleanup
+  delimited = applyHtmlCleanup(delimited);
+
+  // Apply outcomes cleanup (Birmingham-specific text)
+  delimited = applyOutcomesCleanup(delimited);
+
+  // Apply fallback patterns for fields that might have alternative markers
+  delimited = applyFallbackPatterns(delimited);
+
+  // DEBUG: Log delimiter positions for school/department extraction
+  console.log(`[${fileName}] Delimiter POSITIONS:`, {
+    '{': delimited.indexOf('{'),
+    '[': delimited.indexOf('['),
+    ']': delimited.indexOf(']'),
+    '*': delimited.indexOf('*'),
+    '𓏉': delimited.indexOf('𓏉')
+  });
+
+  // DEBUG: Show text around the { delimiter to see what's happening
+  const bracketPos = delimited.indexOf('{');
+  const squarePos = delimited.indexOf('[');
+  if (bracketPos !== -1) {
+    console.log(`[${fileName}] Text around '{' (pos ${bracketPos}):`,
+      delimited.substring(Math.max(0, bracketPos - 50), bracketPos + 100));
   }
-  if (!delimited.includes("Ä")) {
-    delimited = delimited.replace("B Q SFComment briefly", "Ä");
+  if (squarePos !== -1) {
+    console.log(`[${fileName}] Text around '[' (pos ${squarePos}):`,
+      delimited.substring(Math.max(0, squarePos - 50), squarePos + 100));
   }
 
   let courseworkWeighting = extract(delimited, "ɸ", "∏").trim() + "%";
   let examWeighting = extract(delimited, "∏", "Ŋ").trim() + "%";
   let examLength = extract(delimited, "ꮮ", "𓋧").trim();
-  let year = extract(delimited, "`", "¬").trim();
-  let school = delimited.includes("*") 
+  // Year is extracted from full document (proposal section) - use pre-extracted value
+  let year = yearExtracted;
+  let school = delimited.includes("*")
     ? extract(delimited, "{", "*").trim()
     : extract(delimited, "{", "[").trim();
   let department = delimited.includes("𓏉")
     ? extract(delimited, "[", "𓏉").trim()
-    : extract(delimited, "[", "]").trim();    
+    : extract(delimited, "[", "]").trim();
+
+  // DEBUG: Log raw extracted values for school/department
+  console.log(`[${fileName}] Raw extractions:`, {
+    school,
+    department,
+    schoolUsedStar: delimited.includes("*"),
+    departmentUsedAltDelim: delimited.includes("𓏉")
+  });
+
   let title = extract(delimited, "ʓ", "#").trim();  
   let code = extract(delimited, "#", "=").trim();
   let level = extract(delimited, "=", "@").trim();  
@@ -399,33 +520,25 @@ async function createProgData(file) {
   let assessment = "";
   let campusCode = "";
 
-  // Semester Code
+  // Semester Code (case-insensitive matching)
+  const semesterLower = (semester || '').toLowerCase();
 
-  switch (semester) {
-    case "Semester 1":
-      semesterCode = "5";
-      break;
-    case "Semester 2":
-      semesterCode = "6";
-      break;
-    case "Full Term":
-      semesterCode = "1";
-      break;
-    case "Summer Period":
-      semesterCode = "4";
-      break;
-    case "Delivered twice in ac. year (semester 1 and 2)":
-      semesterCode = "5";
-      break;
-    default:
-      semesterCode = "";
-      break;
+  if (semesterLower.includes('semester 1') || semesterLower.includes('delivered twice')) {
+    semesterCode = "5";
+  } else if (semesterLower.includes('semester 2')) {
+    semesterCode = "6";
+  } else if (semesterLower.includes('full term') || semesterLower.includes('full year')) {
+    semesterCode = "1";
+  } else if (semesterLower.includes('summer')) {
+    semesterCode = "4";
+  } else {
+    semesterCode = "";
   }
 
   // Manipulation of the data
   // Year
-  if (year.includes("2021")) {
-    year = "002021";
+  if (year.includes("2027")) {
+    year = "002027";
   } else if (year.includes("2022")) {
     year = "002022";
   } else if (year.includes("2023")) {
@@ -434,7 +547,9 @@ async function createProgData(file) {
     year = "002024";
   } else if (year.includes("2025") || year.includes("25/26")) {
     year = "002025";
-  };
+  } else if (year.includes("2026") || year.includes("26/27")) {
+    year = "002026";
+  }
 
   // Credits
 
@@ -445,25 +560,59 @@ async function createProgData(file) {
   credits = credits.replace(/\D/g, "");
 
   // Dept
-  console.log(department)
   if (
     department.includes("Choose an item") ||
     department.includes("N/A") ||
     department.includes("NA")
   ) {
     department = school;
-  }  
+  }
+
+  // DEBUG: Log mapping lookup inputs
+  console.log(`[${fileName}] Mapping lookup inputs:`, {
+    schoolInput: school,
+    departmentInput: department,
+    schoolMappingMatches: schoolMapping.filter((item) => item.School === school || item.School2 === school).length,
+    deptMappingLongMatches: deptMapping.filter((item) => item.Long === department).length,
+    deptMappingShortMatches: deptMapping.filter((item) => item.Short === department).length
+  });
+
+  // Track fuzzy suggestion for user approval
+  let fuzzySuggestion = null;
 
   if (deptMapping.filter((item) => item.Long === department).length > 0) {
-    deptCode = deptMapping.filter((item) => item.Long === department)[0].Code;
-    subject = deptMapping.filter((item) => item.Long === department)[0].Subject;
-  } else if (
-    deptMapping.filter((item) => item.Short === department).length > 0
-  ) {
-    deptCode = deptMapping.filter((item) => item.Short === department)[0].Code;
-    subject = deptMapping.filter((item) => item.Short === department)[0]
-      .Subject;
+    // Exact match on Long
+    const match = deptMapping.find((item) => item.Long === department);
+    deptCode = match.Code;
+    subject = match.Subject;
+  } else if (deptMapping.filter((item) => item.Short === department).length > 0) {
+    // Exact match on Short
+    const match = deptMapping.find((item) => item.Short === department);
+    deptCode = match.Code;
+    subject = match.Subject;
   } else {
+    // No exact match - try fuzzy matching
+    const fuzzyResult = findFuzzyDeptMatch(department, deptMapping);
+    if (fuzzyResult) {
+      // Look up related values for the suggested department code
+      const suggestedCode = fuzzyResult.item.Code;
+      const suggestedHecosInfo = hecosMapping.filter((item) => item.Code === suggestedCode);
+      const suggestedCcInfo = ccMapping.filter((item) => item["Banner - Dept Level5"] === suggestedCode);
+
+      // Don't auto-apply, return as suggestion for user approval
+      fuzzySuggestion = {
+        field: 'department',
+        original: department,
+        suggested: fuzzyResult.item.Long,
+        suggestedCode: suggestedCode,
+        suggestedSubject: fuzzyResult.item.Subject,
+        suggestedHecos: suggestedHecosInfo.length > 0 ? suggestedHecosInfo[0].HECoS : '',
+        suggestedJacs: suggestedHecosInfo.length > 0 ? suggestedHecosInfo[0].JACS : '',
+        suggestedCc: suggestedCcInfo.length > 0 ? suggestedCcInfo[0]["New CC"] : '',
+        score: fuzzyResult.score
+      };
+      console.log(`[${fileName}] Fuzzy suggestion: "${department}" → "${fuzzyResult.item.Long}" (${(fuzzyResult.score * 100).toFixed(0)}% match)`);
+    }
     deptCode = "";
   }
 
@@ -598,22 +747,24 @@ async function createProgData(file) {
   // Contact hours
 
   function extractNumbers(str) {
-    let numbers = str.match(/\d+/g);
-    return numbers ? numbers.join(" ") : "";
+    if (!str || typeof str !== 'string') return 0;
+    const numbers = str.match(/\d+/g);
+    // Return the first number found as an integer, or 0 if none found
+    return numbers ? parseInt(numbers[0], 10) : 0;
   }
 
-  lecture = Math.round(extractNumbers(lecture));
-  seminar = Math.round(extractNumbers(seminar));
-  tutorial = Math.round(extractNumbers(tutorial));
-  supervision = Math.round(extractNumbers(supervision));
-  demonstration = Math.round(extractNumbers(demonstration));
-  practical = Math.round(extractNumbers(practical));
-  lab = Math.round(extractNumbers(lab));
-  fieldwork = Math.round(extractNumbers(fieldwork));
-  externalVisits = Math.round(extractNumbers(externalVisits));
-  workBased = Math.round(extractNumbers(workBased));
-  guided = Math.round(extractNumbers(guided));
-  studyAbroad = Math.round(extractNumbers(studyAbroad));
+  lecture = extractNumbers(lecture);
+  seminar = extractNumbers(seminar);
+  tutorial = extractNumbers(tutorial);
+  supervision = extractNumbers(supervision);
+  demonstration = extractNumbers(demonstration);
+  practical = extractNumbers(practical);
+  lab = extractNumbers(lab);
+  fieldwork = extractNumbers(fieldwork);
+  externalVisits = extractNumbers(externalVisits);
+  workBased = extractNumbers(workBased);
+  guided = extractNumbers(guided);
+  studyAbroad = extractNumbers(studyAbroad);
 
   // Description
 
@@ -665,6 +816,21 @@ async function createProgData(file) {
     outcomes = outcomes.replace("20.13", "");
     outcomes = outcomes.replace("20.14", "");
     outcomes = outcomes.replace("20.15", "");
+    outcomes = outcomes.replace("21.1", "");
+    outcomes = outcomes.replace("21.2", "");
+    outcomes = outcomes.replace("21.3", "");
+    outcomes = outcomes.replace("21.4", "");
+    outcomes = outcomes.replace("21.5", "");
+    outcomes = outcomes.replace("21.6", "");
+    outcomes = outcomes.replace("21.7", "");
+    outcomes = outcomes.replace("21.8", "");
+    outcomes = outcomes.replace("21.9", "");
+    outcomes = outcomes.replace("21.10", "");
+    outcomes = outcomes.replace("21.11", "");
+    outcomes = outcomes.replace("21.12", "");
+    outcomes = outcomes.replace("21.13", "");
+    outcomes = outcomes.replace("21.14", "");
+    outcomes = outcomes.replace("21.15", "");
     outcomes = outcomes
     outcomes = outcomes
     .replace(/\\n\\n/g, "</li><li>")
@@ -692,6 +858,20 @@ async function createProgData(file) {
     .replace(/<br><br><br><br>/g, "<br><br>")
     .replace("<br><br><br><br>", "<br><br>");
   assessment = assessment.replace(/<br><br><br>/g, "<br><br>");
+
+  // Validate hierarchy after all mappings are done
+  const hierarchyValidation = validateHierarchy(college, schoolCode, deptCode);
+  const hasHierarchyMismatch = hierarchyValidation?.valid === false;
+
+  // Determine if we need to show dropdown options for missing values
+  const missingDept = !deptCode;
+  const missingSchool = !schoolCode;
+
+  // Include all dropdown options if there's a hierarchy mismatch (so user can correct any field)
+  // or if the specific field is missing
+  const needsDeptOptions = missingDept || hasHierarchyMismatch;
+  const needsSchoolOptions = missingSchool || hasHierarchyMismatch;
+  const needsCollegeOptions = hasHierarchyMismatch;
 
   const data2 = {
     year,
@@ -743,6 +923,14 @@ async function createProgData(file) {
     semester,
     semesterCode,
     lead,
+    fuzzySuggestion,
+    // Hierarchy validation and dropdown options
+    hierarchyMismatch: hasHierarchyMismatch ? hierarchyValidation : null,
+    missingDept,
+    missingSchool,
+    deptOptions: needsDeptOptions ? getDeptOptions(schoolCode, college) : null,
+    schoolOptions: needsSchoolOptions ? getSchoolOptions(deptCode, college) : null,
+    collegeOptions: needsCollegeOptions ? getCollegeOptions() : null,
   };
   // console.log(data2);
   return data2;
@@ -750,72 +938,105 @@ async function createProgData(file) {
 }
 
 async function text(req, res, next) {
+  const sessionId = req.query.sessionId;
   const filePaths = [];
 
-  fs.readdirSync(path.join(__dirname, "../client/build")).forEach((file) => {
-    if (path.extname(file) === ".docx") {
-      filePaths.push(path.join(__dirname, "../client/build", file));
+  // Determine which directory to use
+  let uploadDir;
+  if (sessionId) {
+    // Validate session ID format (UUID)
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sessionId)) {
+      return res.status(400).json({ error: 'Invalid session ID' });
     }
-  });
-  let finalData = [];
+    uploadDir = path.join(UPLOADS_DIR, sessionId);
+  } else {
+    // Fallback to legacy directory for backward compatibility
+    uploadDir = path.join(__dirname, "../client/build");
+  }
+
+  // Check if directory exists
+  if (!fs.existsSync(uploadDir)) {
+    return res.status(404).json({ error: 'Upload session not found. Please upload files first.' });
+  }
+
+  // Find all .docx files in the directory
+  try {
+    const files = fs.readdirSync(uploadDir);
+    files.forEach((file) => {
+      if (path.extname(file).toLowerCase() === ".docx") {
+        filePaths.push(path.join(uploadDir, file));
+      }
+    });
+  } catch (err) {
+    console.error('Error reading upload directory:', err.message);
+    return res.status(500).json({ error: 'Failed to read upload directory' });
+  }
+
+  if (filePaths.length === 0) {
+    return res.status(404).json({ error: 'No .docx files found. Please upload Word documents first.' });
+  }
+
+  const finalData = [];
+  const errors = [];
+
   try {
     for (let i = 0; i < filePaths.length; i++) {
       const file = filePaths[i];
-      const obj = await createProgData(file);
-      finalData.push(obj);
+      try {
+        const obj = await createProgData(file);
+        finalData.push(obj);
+      } catch (fileErr) {
+        console.error(`Error processing ${path.basename(file)}:`, fileErr.message);
+        errors.push({
+          fileName: path.basename(file),
+          error: fileErr.message
+        });
+      }
+    }
+
+    if (finalData.length === 0) {
+      return res.status(500).json({
+        error: 'Failed to process any files',
+        details: errors
+      });
     }
 
     // Create worksheet
     const ws = XLSX.utils.json_to_sheet(finalData);
     // Create workbook
     const wb = XLSX.utils.book_new();
-    //Append worksheet to workbook
+    // Append worksheet to workbook
     XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+    // Determine output path
+    const outputPath = sessionId
+      ? path.join(uploadDir, "output.xlsx")
+      : path.join(__dirname, "..", "output.xlsx");
+
     // Write workbook
-    XLSX.writeFile(wb, "output.xlsx");
+    XLSX.writeFile(wb, outputPath);
+
+    // Verify file was created
+    if (!fs.existsSync(outputPath)) {
+      return res.status(500).json({ error: 'Failed to create output file' });
+    }
+
+    // Include session ID and any errors in response
+    const response = {
+      data: finalData,
+      sessionId: sessionId || null,
+      filesProcessed: finalData.length,
+      errors: errors.length > 0 ? errors : undefined
+    };
+
     res.status(200).json(finalData);
   } catch (err) {
-    console.log("here");
-    next(err);
+    console.error('Error generating data:', err.message);
+    return res.status(500).json({
+      error: 'Failed to process files',
+      details: err.message
+    });
   }
-
-  // console.log(delimited);
-
-  // console.log(year);
-  // console.log(school);
-  // console.log(department);
-  // console.log(title);
-  // console.log(code);
-  // console.log(level);
-  // console.log(credits);
-  // console.log(semester);
-  // console.log(compulsory);
-  // console.log(optional);
-  // console.log(prereq);
-  // console.log(coreq);
-  // console.log(campus);
-  // console.log(exemptions);
-  // console.log(lecture);
-  // console.log(seminar);
-  // console.log(tutorial);
-  // console.log(supervision);
-  // console.log(demonstration);
-  // console.log(practical);
-  // console.log(lab);
-  // console.log(fieldwork);
-  // console.log(externalVisits);
-  // console.log(workBased);
-  // console.log(guided);
-  // console.log(studyAbroad);
-  // console.log(description);
-  // console.log(outcomes);
-  // console.log(formative);
-  // console.log(summative);
-  // console.log(exam);
-  // console.log(examPeriod);
-  // console.log(hurdles);
-  // console.log(reassessment);
-  // console.log(lead);
 }
 
 module.exports = text;
