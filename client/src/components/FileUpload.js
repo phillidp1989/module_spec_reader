@@ -149,7 +149,7 @@ const getModuleValidationSummary = (module) => {
 };
 
 const FileUpload = () => {
-  const url = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  const url = process.env.REACT_APP_API_URL || '';
   const fileInputRef = useRef(null);
 
   const [selectedFiles, setSelectedFiles] = useState([]);
