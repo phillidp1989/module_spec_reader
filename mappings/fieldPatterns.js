@@ -257,7 +257,8 @@ const readerFields = [
     delimiter: 'ﱙ',
     patterns: [
       'If delivered multiple times a year,',
-      'BProgrammes on which the module is available (please state the programme title and code)'
+      'BProgrammes on which the module is available (please state the programme title and code)',
+      'Programmes on which the module is available (please state the programme title and code)'
     ]
   },
 
@@ -329,6 +330,7 @@ const readerFields = [
     delimiter: 'Ä',
     patterns: [
       "If 'other' please state here:",
+      "If \u2018other\u2019 please state here:",
       'B Q SFComment briefly'
     ]
   },

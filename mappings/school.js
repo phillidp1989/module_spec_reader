@@ -132,6 +132,12 @@ const schoolMapping = [
         "College": "12",
     },
     {
+        "Code": "020",
+        "School": "Education",
+        "School2": "Education",
+        "College": "12",
+    },
+    {
         "Code": "080",
         "School": "School of Engineering",
         "School2": "School of Engineering",
@@ -249,6 +255,12 @@ const schoolMapping = [
     {
         "Code": "036",
         "School": "School of Sport, Exercise and Rehabilitation Sciences",
+        "School2": "Sport, Ex and Rehab Sciences",
+        "College": "10",
+    },
+    {
+        "Code": "036",
+        "School": "School of Sport and Exercise Rehabilitation Sciences",
         "School2": "Sport, Ex and Rehab Sciences",
         "College": "10",
     },

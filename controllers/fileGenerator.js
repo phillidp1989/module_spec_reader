@@ -520,6 +520,8 @@ async function createProgData(file) {
   let assessment = "";
   let campusCode = "";
 
+  console.log("Campus extracted:", campus);
+
   // Semester Code (case-insensitive matching)
   const semesterLower = (semester || '').toLowerCase();
 
