@@ -669,28 +669,29 @@ async function createProgData(file) {
   if (
     campus.includes("Edgbaston") ||
     campus === "Birmingham" ||
-    campus === "UoB Campus Selly Oak" ||
-    campus === "Shakespeare Institute"
+    campus === "UoB Campus Selly Oak"    
   ) {
-    campusCode = "B";
+    campusCode = "A00";
   } else if (campus.includes("Dubai")) {
-    campusCode = "U";
+    campusCode = "A01";
+  } else if (campus.includes("Shakespeare")) {
+    campusCode = "A38";
+  } else if (campus.includes("Singapore Institute of Management")) {
+    campusCode = "A27";
   } else if (
-    campus === "Joint Birmingham JNU Institute" ||
-    campus === "Joint Institutions"
+    campus === "Joint Birmingham JNU Institute"    
   ) {
-    campusCode = "J";
+    campusCode = "A27";
   } else if (
-    campus === "Singapore Institute of Management" ||
     campus === "Totally Taught Abroad"
   ) {
-    campusCode = "R";
+    campusCode = "A77";
   } else if (
     campus === "Online" ||
     campus === "Distance" ||
     campus === "Distance Learning"
   ) {
-    campusCode = "D";
+    campusCode = "A06";
   }
 
   // Long title
@@ -715,9 +716,9 @@ async function createProgData(file) {
   // Short title
 
   let characterLimit = 30;
-  if (campusCode === "U") {
+  if (campusCode === "A01") {
     characterLimit = 26;
-  } else if (campusCode === "D") {
+  } else if (campusCode === "A06" || campusCode === "A04") {
     characterLimit = 27;
   }
   let words = longTitle.split(" ");
@@ -740,9 +741,9 @@ async function createProgData(file) {
   }
   shortTitle = words.join(" ");
 
-  if (campusCode === "U") {
+  if (campusCode === "A01") {
     shortTitle = shortTitle + " Dub";
-  } else if (campusCode === "D") {
+  } else if (campusCode === "A06" || campusCode === "A04") {
     shortTitle = shortTitle + " DL";
   }
 
@@ -854,7 +855,7 @@ async function createProgData(file) {
 
   summative = summative.replace(/\\n/g, "<br>");  
   reassessment = reassessment.replace(/\\n/g, "<br>");
-  assessment = `<strong>Assessment:</strong><br><br>${summative}<br><br><strong>Reassessment:</strong><br><br>${reassessment}`;
+  assessment = `<strong>Main Assessment:</strong><br><br>${summative}<br><br><strong>Reassessment:</strong><br><br>${reassessment}`;
   assessment = assessment
     .replace(/&amp;/g, "&")
     .replace(/<br><br><br><br>/g, "<br><br>")
@@ -925,6 +926,7 @@ async function createProgData(file) {
     semester,
     semesterCode,
     lead,
+    "Module/Section": "Module",
     fuzzySuggestion,
     // Hierarchy validation and dropdown options
     hierarchyMismatch: hasHierarchyMismatch ? hierarchyValidation : null,

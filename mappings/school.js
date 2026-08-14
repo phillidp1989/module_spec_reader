@@ -150,6 +150,12 @@ const schoolMapping = [
         "College": "11",
     },
     {
+        "Code": "046",
+        "School": "English, Drama And Creative Studies",
+        "School2": "Eng, Drama, & Creative Studies",
+        "College": "11",
+    },
+    {
         "Code": "022",
         "School": "School of Geography, Earth and Environmental Sciences",
         "School2": "School of Geog Earth & Env Sci",
