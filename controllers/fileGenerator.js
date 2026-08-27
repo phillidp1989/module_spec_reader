@@ -741,10 +741,12 @@ async function createProgData(file) {
   }
   shortTitle = words.join(" ");
 
+  // CRN title carries the campus suffix; the short title stays without it
+  let crnTitle = shortTitle;
   if (campusCode === "A01") {
-    shortTitle = shortTitle + " Dub";
+    crnTitle = shortTitle + " Dub";
   } else if (campusCode === "A06" || campusCode === "A04") {
-    shortTitle = shortTitle + " DL";
+    crnTitle = shortTitle + " DL";
   }
 
   // Contact hours
@@ -884,8 +886,8 @@ async function createProgData(file) {
     department,
     deptCode,
     college,
-    title,
-    shortTitle,
+    crnTitle,
+    moduleShortTitle: shortTitle,
     longTitle,
     code,
     level,

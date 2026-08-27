@@ -99,8 +99,8 @@ const SearchableSelect = ({ options, value, onChange, placeholder, className }) 
 
 // Field validation rules
 const fieldValidation = {
-  title: { maxLength: 100, required: true, label: 'Title' },
-  shortTitle: { maxLength: 30, required: true, label: 'Short Title' },
+  crnTitle: { maxLength: 30, required: true, label: 'CRN Title' },
+  moduleShortTitle: { maxLength: 30, required: true, label: 'Module Short Title' },
   longTitle: { maxLength: 100, required: true, label: 'Long Title' },
   description: { maxLength: 4000, required: true, label: 'Description' },
   outcomes: { maxLength: 4000, required: true, label: 'Outcomes' },
@@ -896,7 +896,7 @@ const FileUpload = () => {
                         <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
                       )}
                       <span className="font-medium text-gray-800 truncate">
-                        {file.longTitle || file.title || 'Untitled Module'}
+                        {file.longTitle || file.crnTitle || 'Untitled Module'}
                       </span>
                     </div>
                     <span className="flex items-center gap-2 ml-2 flex-shrink-0">
@@ -1077,8 +1077,8 @@ const FileUpload = () => {
                       <div className="overflow-x-auto">
                         <table className="min-w-full">
                           <tbody className="divide-y divide-gray-200">
-                            {renderField('Title', file.title, 'title', file, i)}
-                            {renderField('Short Title', file.shortTitle, 'shortTitle', file, i)}
+                            {renderField('CRN Title', file.crnTitle, 'crnTitle', file, i)}
+                            {renderField('Module Short Title', file.moduleShortTitle, 'moduleShortTitle', file, i)}
                             {renderField('Year', file.year, 'year', file, i)}
                             {renderField('Subject', file.subject, 'subject', file, i)}
                             {renderField('School', file.school, 'school', file, i)}
