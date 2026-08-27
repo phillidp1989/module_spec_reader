@@ -410,6 +410,14 @@
   {
     "College Code": "13",
     "College Description": "EPS",
+    "School Code": "032",
+    "School Description": "Physics and Astronomy",
+    "Department Code": "032",
+    "Department Description": "Physics and Astronomy"
+  },
+  {
+    "College Code": "13",
+    "College Description": "EPS",
     "School Code": "056",
     "School Description": "Chemical Engineering",
     "Department Code": "013",
