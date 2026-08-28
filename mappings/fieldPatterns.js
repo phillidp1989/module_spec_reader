@@ -66,7 +66,8 @@ const textractFields = [
       'e.g. 1hr written unseen examination (50%), 500 word essay (10%), group presentation (40%), if required',
       'e.g. 2hr written unseen examination (50%), 1500 word essay (50%)',
       'e.g. Type A 2hr written unseen examination (50%), Type C 1500 word essay (50%).',
-      'e.g. Type A 2hr written unseen examination (50%), Type C 1500 word essay (50%)'
+      'e.g. Type A 2hr written unseen examination (50%), Type C 1500 word essay (50%)',
+      'List all summative assessment components under Type A'
     ]
   },
   {
@@ -589,7 +590,8 @@ const readerFields = [
       'e.g. 1hr written unseen examination (50%), 500 word essay (10%), group presentation (40%), if required',
       'e.g. 1hr written unseen examination (50%), 500-word essay (10%), group presentation (40%), if required',
       'e.g. Type A 2hr written unseen examination (50%), Type C 1500 word essay (50%).',
-      'e.g. Type A 2hr written unseen examination (50%), Type C 1500 word essay (50%)'
+      'e.g. Type A 2hr written unseen examination (50%), Type C 1500 word essay (50%)',
+      'List all summative assessment components under Type A'
     ]
   },
 

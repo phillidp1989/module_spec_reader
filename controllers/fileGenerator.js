@@ -992,8 +992,12 @@ async function createProgData(file) {
     summative = summative
       .replace(/\\n/g, "\n")
       .split(/Type\s*[ABC]\s*:/)
-      .map((part) => part.replace(/\s+/g, " ").trim())
-      .filter((part) => part && !/^(none|n\/?a)\.?$/i.test(part) && !/^[.:;,\s]*$/.test(part))
+      // Text before the first Type marker is label remnant, not a method;
+      // each non-empty line within a type is a separate method
+      .slice(1)
+      .flatMap((part) => part.split("\n"))
+      .map((line) => line.replace(/\s+/g, " ").trim())
+      .filter((line) => line && !/^(none|n\/?a)\.?$/i.test(line) && !/^[.:;,\s]*$/.test(line))
       .join("<br><br>");
   } else {
     summative = summative.replace(/\\n/g, "<br>");
