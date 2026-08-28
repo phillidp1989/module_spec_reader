@@ -127,6 +127,7 @@ function normalizeDeptName(name) {
     .replace(/^school of /i, '')
     .replace(/^institute of /i, '')
     .replace(/^department of /i, '')
+    .replace(/&/g, ' and ')
     .replace(/[^\w\s]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
@@ -506,13 +507,8 @@ async function createProgData(file) {
   let subject = "";
   let college = "";
   let costCentre = "";
-  let scheduleType =
-    level.includes("LM") && credits >= 40
-      ? "X"
-      : !level.includes("LM") && credits >= 40
-      ? "P"
-      : "Z";
-  let progLevel = level.includes("LM") ? "GT" : "UG";
+  let scheduleType = "";
+  let progLevel = "";
   let jacs = "";
   let hecos = "";
   let cc = "";
@@ -564,8 +560,7 @@ async function createProgData(file) {
   // Dept
   if (
     department.includes("Choose an item") ||
-    department.includes("N/A") ||
-    department.includes("NA")
+    /^n\s*\/?\s*a$/i.test(department.trim())
   ) {
     department = school;
   }
@@ -592,6 +587,23 @@ async function createProgData(file) {
     const match = deptMapping.find((item) => item.Short === department);
     deptCode = match.Code;
     subject = match.Subject;
+  } else if (
+    normalizeDeptName(department) &&
+    deptMapping.some(
+      (item) =>
+        normalizeDeptName(item.Long) === normalizeDeptName(department) ||
+        normalizeDeptName(item.Short) === normalizeDeptName(department)
+    )
+  ) {
+    // Match ignoring case, punctuation, "&" vs "and" and "School of" prefixes
+    const match = deptMapping.find(
+      (item) =>
+        normalizeDeptName(item.Long) === normalizeDeptName(department) ||
+        normalizeDeptName(item.Short) === normalizeDeptName(department)
+    );
+    deptCode = match.Code;
+    subject = match.Subject;
+    console.log(`[${fileName}] Normalized dept match: "${department}" → "${match.Long}" (${match.Code})`);
   } else {
     // No exact match - try fuzzy matching
     const fuzzyResult = findFuzzyDeptMatch(department, deptMapping);
@@ -653,16 +665,33 @@ async function createProgData(file) {
   
   // Level
 
-  if (level.includes("Master")) {
+  const levelLower = level.toLowerCase();
+  if (levelLower.includes("master")) {
     level = "LM";
-  } else if (level.includes("Honours")) {
+  } else if (levelLower.includes("honours")) {
     level = "LH";
-  } else if (level.includes("Intermediate")) {
+  } else if (levelLower.includes("intermediate")) {
     level = "LI";
-  } else if (level.includes("Certificate")) {
+  } else if (levelLower.includes("certificate")) {
     level = "LC";
+  } else if (levelLower.includes("foundation")) {
+    level = "LF";
+  } else {
+    const levelToken = level.match(/\b(LC|LI|LH|LM|LF)\b/);
+    if (levelToken) {
+      level = levelToken[1];
+    }
   }
-  
+
+  // Schedule type and programme level (level and credits are normalised by this point)
+  scheduleType =
+    level === "LM" && Number(credits) >= 40
+      ? "X"
+      : level !== "LM" && Number(credits) >= 40
+      ? "P"
+      : "Z";
+  progLevel = level === "LM" ? "GT" : "UG";
+
 
   // Campus code
 

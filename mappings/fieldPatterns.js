@@ -227,7 +227,9 @@ const readerFields = [
     delimiter: '@',
     patterns: [
       'B QModule credits ',
-      'Module credits '
+      'Module credits ',
+      'B QModule credits',
+      'Module credits'
     ]
   },
 
