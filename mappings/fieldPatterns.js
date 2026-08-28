@@ -269,14 +269,17 @@ const readerFields = [
     name: 'compulsory_start',
     delimiter: 'Ǖ',
     patterns: [
-      'registered on this module code):'
+      'registered on this module code):',
+      'Compulsory:'
     ]
   },
   {
     name: 'optional_start',
     delimiter: 'Ê',
     patterns: [
-      'As an optional module:'
+      'As an optional module (including any information about its grouping, if relevant):',
+      'As an optional module:',
+      'Optional:'
     ],
     required: false
   },
@@ -333,7 +336,8 @@ const readerFields = [
     patterns: [
       "If 'other' please state here:",
       "If \u2018other\u2019 please state here:",
-      'B Q SFComment briefly'
+      'B Q SFComment briefly',
+      'Comment briefly on how your School'
     ]
   },
 

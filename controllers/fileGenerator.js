@@ -1,4 +1,5 @@
 const reader = require("any-text");
+const StreamZip = require("node-stream-zip");
 const path = require("path");
 const fs = require("fs");
 const textract = require("textract");
@@ -341,6 +342,57 @@ function getCollegeOptions() {
   return unique.sort((a, b) => a.name.localeCompare(b.name));
 }
 
+// Newer form versions add narrow marker cells to the spec tables containing
+// checkbox glyphs that extract as the letters O, P and Q. A cell (or line)
+// containing nothing but those letters is never real data.
+const MARKER_ONLY_REGEX = /^\s*(?:[OPQ]\s*)+$/;
+
+function readDocumentXml(file) {
+  return new Promise((resolve, reject) => {
+    const zip = new StreamZip({ file, storeEntries: true });
+    zip.on("error", reject);
+    zip.on("ready", () => {
+      zip.stream("word/document.xml", (err, stream) => {
+        if (err) {
+          zip.close();
+          return reject(err);
+        }
+        const chunks = [];
+        stream.on("data", (chunk) => chunks.push(chunk));
+        stream.on("error", reject);
+        stream.on("end", () => {
+          zip.close();
+          resolve(Buffer.concat(chunks).toString());
+        });
+      });
+    });
+  });
+}
+
+// Concatenate <w:t> run contents, like any-text does (entities left encoded
+// for applyHtmlCleanup), but split on table-cell boundaries first so cells
+// holding only O/P/Q marker glyphs can be dropped instead of welding onto
+// the neighbouring value.
+function getDocxText(file) {
+  return readDocumentXml(file).then((xml) => {
+    let body = "";
+    for (const segment of xml.split("</w:tc>")) {
+      let segmentText = "";
+      const runRegex = /<w:t(?:\s[^>]*)?>([\s\S]*?)<\/w:t>/g;
+      let match;
+      while ((match = runRegex.exec(segment)) !== null) {
+        segmentText += match[1];
+      }
+      if (segmentText && MARKER_ONLY_REGEX.test(segmentText)) continue;
+      body += segmentText;
+    }
+    return body;
+  }).catch((err) => {
+    console.warn(`getDocxText failed for ${path.basename(file)} (${err.message}), falling back to any-text`);
+    return reader.getText(file);
+  });
+}
+
 async function createProgData(file) {
   const config = {
     preserveLineBreaks: true,
@@ -351,6 +403,14 @@ async function createProgData(file) {
     config
     );
 
+  // Drop lines that are only O/P/Q marker glyphs so they don't become
+  // bullet points or stray text in description/outcomes/assessment
+  text = text.map((t) =>
+    typeof t === "string"
+      ? t.split("\n").filter((line) => !MARKER_ONLY_REGEX.test(line)).join("\n")
+      : t
+  );
+
   text = JSON.stringify(text);
 
   // Get filename for logging
@@ -359,7 +419,7 @@ async function createProgData(file) {
   // Apply textract field replacements (for description/outcomes with line breaks)
   let delimited1 = applyFieldReplacements(text, fieldPatterns.textractFields, fileName);
 
-  const data = await reader.getText(file);
+  const data = await getDocxText(file);
 
   // === STEP 1: Extract Year from FULL document (proposal section has the year) ===
   const yearPatterns = [
@@ -547,6 +607,15 @@ async function createProgData(file) {
     year = "002025";
   } else if (year.includes("2026") || year.includes("26/27")) {
     year = "002026";
+  } else {
+    // Future-proof: pick up any other academic year, e.g. "2028/29 academic session"
+    const fullYear = year.match(/20\d{2}/);
+    const shortYear = year.match(/\b(\d{2})\/\d{2}\b/);
+    if (fullYear) {
+      year = "00" + fullYear[0];
+    } else if (shortYear) {
+      year = "0020" + shortYear[1];
+    }
   }
 
   // Credits
@@ -558,9 +627,15 @@ async function createProgData(file) {
   credits = credits.replace(/\D/g, "");
 
   // Dept
+  // A department slice containing form-question text means the department row
+  // was missing or malformed in the document - treat it as empty
+  if (department.includes("If ‘yes’") || department.includes("If 'yes'")) {
+    department = "";
+  }
   if (
     department.includes("Choose an item") ||
-    /^n\s*\/?\s*a$/i.test(department.trim())
+    /^n\s*\/?\s*a$/i.test(department.trim()) ||
+    department.trim() === ""
   ) {
     department = school;
   }
@@ -660,6 +735,32 @@ async function createProgData(file) {
     college = schoolMapping.filter(
       (item) => item.School === school || item.School2 === school
     )[0].College;
+  } else if (normalizeDeptName(school)) {
+    // Match ignoring case, punctuation, "&" vs "and" and "School of" prefixes
+    const schoolMatch = schoolMapping.find(
+      (item) =>
+        normalizeDeptName(item.School) === normalizeDeptName(school) ||
+        normalizeDeptName(item.School2) === normalizeDeptName(school)
+    );
+    if (schoolMatch) {
+      schoolCode = schoolMatch.Code;
+      college = schoolMatch.College;
+      console.log(`[${fileName}] Normalized school match: "${school}" → "${schoolMatch.School}" (${schoolMatch.Code})`);
+    }
+  }
+
+  // If the school could not be matched but the department was, derive the
+  // school from the college/school/department hierarchy when unambiguous
+  if (!schoolCode && deptCode) {
+    const hierarchyRows = collegeSchoolDeptMapping.filter(
+      (row) => row["Department Code"] === deptCode
+    );
+    const uniqueSchools = [...new Set(hierarchyRows.map((row) => row["School Code"]))];
+    if (uniqueSchools.length === 1) {
+      schoolCode = hierarchyRows[0]["School Code"];
+      college = hierarchyRows[0]["College Code"];
+      console.log(`[${fileName}] School derived from department ${deptCode}: ${schoolCode} (college ${college})`);
+    }
   }
 
   
