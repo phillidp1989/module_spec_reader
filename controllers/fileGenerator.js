@@ -985,8 +985,21 @@ async function createProgData(file) {
 
   // Assessment
 
-  summative = summative.replace(/\\n/g, "<br>");  
-  reassessment = reassessment.replace(/\\n/g, "<br>");
+  // GAI classification format: components listed as "Type A: ...",
+  // "Type B: ...", "Type C: ..." - concatenate the methods that exist,
+  // dropping the Type labels and any empty/None types
+  if (/Type\s*[ABC]\s*:/.test(summative)) {
+    summative = summative
+      .replace(/\\n/g, "\n")
+      .split(/Type\s*[ABC]\s*:/)
+      .map((part) => part.replace(/\s+/g, " ").trim())
+      .filter((part) => part && !/^(none|n\/?a)\.?$/i.test(part) && !/^[.:;,\s]*$/.test(part))
+      .join("<br><br>");
+  } else {
+    summative = summative.replace(/\\n/g, "<br>");
+  }
+  summative = summative.replace(/(<br>)+$/, "");
+  reassessment = reassessment.replace(/\\n/g, "<br>").replace(/(<br>)+$/, "");
   assessment = `<strong>Main Assessment:</strong><br><br>${summative}<br><br><strong>Reassessment:</strong><br><br>${reassessment}`;
   assessment = assessment
     .replace(/&amp;/g, "&")

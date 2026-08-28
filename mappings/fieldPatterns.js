@@ -64,7 +64,9 @@ const textractFields = [
     patterns: [
       'e.g. 1hr written unseen examination (50%), 1500 word essay (50%)\\n',
       'e.g. 1hr written unseen examination (50%), 500 word essay (10%), group presentation (40%), if required',
-      'e.g. 2hr written unseen examination (50%), 1500 word essay (50%)'
+      'e.g. 2hr written unseen examination (50%), 1500 word essay (50%)',
+      'e.g. Type A 2hr written unseen examination (50%), Type C 1500 word essay (50%).',
+      'e.g. Type A 2hr written unseen examination (50%), Type C 1500 word essay (50%)'
     ]
   },
   {
@@ -83,7 +85,10 @@ const textractFields = [
     patterns: [
       "meet the module's learning outcomes.\\n\\n",
       "meet the module's learning outcomes.\\n",
-      "meet the module's learning outcomes."
+      "meet the module's learning outcomes.",
+      "meet the module’s learning outcomes.\\n\\n",
+      "meet the module’s learning outcomes.\\n",
+      "meet the module’s learning outcomes."
     ]
   },
   {
@@ -582,7 +587,9 @@ const readerFields = [
     patterns: [
       'e.g. 1hr written unseen examination (50%), 1500 word essay (50%)',
       'e.g. 1hr written unseen examination (50%), 500 word essay (10%), group presentation (40%), if required',
-      'e.g. 1hr written unseen examination (50%), 500-word essay (10%), group presentation (40%), if required'
+      'e.g. 1hr written unseen examination (50%), 500-word essay (10%), group presentation (40%), if required',
+      'e.g. Type A 2hr written unseen examination (50%), Type C 1500 word essay (50%).',
+      'e.g. Type A 2hr written unseen examination (50%), Type C 1500 word essay (50%)'
     ]
   },
 
@@ -647,7 +654,8 @@ const readerFields = [
     name: 'reassessment_end',
     delimiter: 'ꮲ',
     patterns: [
-      "meet the module's learning outcomes."
+      "meet the module's learning outcomes.",
+      "meet the module’s learning outcomes."
     ]
   },
 
