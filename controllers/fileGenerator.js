@@ -128,7 +128,10 @@ function normalizeDeptName(name) {
     .replace(/^school of /i, '')
     .replace(/^institute of /i, '')
     .replace(/^department of /i, '')
-    .replace(/&/g, ' and ')
+    .replace(/^dept\.? of /i, '')
+    .replace(/^dep\.? of /i, '')
+    .replace(/^inst\.? of /i, '')
+    .replace(/[&/]/g, ' and ')
     .replace(/[^\w\s]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
@@ -369,20 +372,41 @@ function readDocumentXml(file) {
   });
 }
 
-// Concatenate <w:t> run contents, like any-text does (entities left encoded
-// for applyHtmlCleanup), but split on table-cell boundaries first so cells
-// holding only O/P/Q marker glyphs can be dropped instead of welding onto
-// the neighbouring value.
+// A run struck through with <w:strike/> or <w:dstrike/> is deleted content
+// on modification forms - never real data.
+function isStruckRun(runXml) {
+  const rPrMatch = runXml.match(/<w:rPr>[\s\S]*?<\/w:rPr>/);
+  if (!rPrMatch) return false;
+  const strike = rPrMatch[0].match(/<w:(?:strike|dstrike)(?:\s[^>]*)?\/?>/);
+  if (!strike) return false;
+  return !/w:val\s*=\s*"(?:false|0)"/.test(strike[0]);
+}
+
+// Visible (non-struck) text of an XML fragment: concatenated <w:t> contents
+// of its runs, entities left encoded for applyHtmlCleanup.
+function extractRunsText(fragment) {
+  let out = "";
+  const runRegex = /<w:r(?:\s[^>]*)?>([\s\S]*?)<\/w:r>/g;
+  let m;
+  while ((m = runRegex.exec(fragment)) !== null) {
+    if (isStruckRun(m[0])) continue;
+    const tRegex = /<w:t(?:\s[^>]*)?>([\s\S]*?)<\/w:t>/g;
+    let t;
+    while ((t = tRegex.exec(m[1])) !== null) {
+      out += t[1];
+    }
+  }
+  return out;
+}
+
+// Concatenate run contents like any-text does, but split on table-cell
+// boundaries first so cells holding only O/P/Q marker glyphs can be dropped
+// instead of welding onto the neighbouring value.
 function getDocxText(file) {
   return readDocumentXml(file).then((xml) => {
     let body = "";
     for (const segment of xml.split("</w:tc>")) {
-      let segmentText = "";
-      const runRegex = /<w:t(?:\s[^>]*)?>([\s\S]*?)<\/w:t>/g;
-      let match;
-      while ((match = runRegex.exec(segment)) !== null) {
-        segmentText += match[1];
-      }
+      const segmentText = extractRunsText(segment);
       if (segmentText && MARKER_ONLY_REGEX.test(segmentText)) continue;
       body += segmentText;
     }
@@ -393,15 +417,36 @@ function getDocxText(file) {
   });
 }
 
+// Line-preserving variant used in place of textract: paragraphs and table
+// cells become lines so description/outcomes/assessment keep their structure,
+// with struck-through runs and marker-only cells dropped.
+function getDocxTextWithLineBreaks(file) {
+  return readDocumentXml(file).then((xml) => {
+    const parts = [];
+    for (const segment of xml.split("</w:tc>")) {
+      const segmentText = segment.split("</w:p>").map(extractRunsText).join("\n");
+      if (segmentText.trim() && MARKER_ONLY_REGEX.test(segmentText)) continue;
+      if (segmentText) parts.push(segmentText);
+    }
+    return parts.join("\n");
+  });
+}
+
 async function createProgData(file) {
   const config = {
     preserveLineBreaks: true,
   };
-  
-  let text = await pify(textract.fromFileWithPath, { multiArgs: true })(
-    file,
-    config
-    );
+
+  let text;
+  try {
+    text = [await getDocxTextWithLineBreaks(file)];
+  } catch (err) {
+    console.warn(`getDocxTextWithLineBreaks failed for ${path.basename(file)} (${err.message}), falling back to textract`);
+    text = await pify(textract.fromFileWithPath, { multiArgs: true })(
+      file,
+      config
+      );
+  }
 
   // Drop lines that are only O/P/Q marker glyphs so they don't become
   // bullet points or stray text in description/outcomes/assessment
@@ -512,7 +557,16 @@ async function createProgData(file) {
     departmentUsedAltDelim: delimited.includes("𓏉")
   });
 
-  let title = extract(delimited, "ʓ", "#").trim();  
+  let title = extract(delimited, "ʓ", "#").trim();
+  // A cell ending in a digit (e.g. accrediting body "IOM3") can glue onto the
+  // title label and trigger the '3Module title' alternate pattern (delimiter
+  // X), destroying the label the main slice needs - recover from X instead
+  if (!title && delimited.includes("X")) {
+    const altTitle = extract(delimited, "X", "#").trim();
+    if (altTitle && altTitle.length <= 200) {
+      title = altTitle;
+    }
+  }  
   let code = extract(delimited, "#", "=").trim();
   let level = extract(delimited, "=", "@").trim();  
   let credits = delimited.includes("$")
@@ -679,6 +733,30 @@ async function createProgData(file) {
     deptCode = match.Code;
     subject = match.Subject;
     console.log(`[${fileName}] Normalized dept match: "${department}" → "${match.Long}" (${match.Code})`);
+  } else if (
+    normalizeDeptName(department).length >= 8 &&
+    (() => {
+      // Unique prefix match handles Banner-style truncations, e.g.
+      // "Political Sci & Intern'tl St" vs "Political Sci & Intern'tl Stud"
+      const nd = normalizeDeptName(department);
+      const prefixMatches = deptMapping.filter((item) =>
+        [normalizeDeptName(item.Long), normalizeDeptName(item.Short)].some(
+          (n) => n.length >= 8 && (n.startsWith(nd) || nd.startsWith(n))
+        )
+      );
+      const codes = [...new Set(prefixMatches.map((item) => item.Code))];
+      return codes.length === 1;
+    })()
+  ) {
+    const nd = normalizeDeptName(department);
+    const match = deptMapping.find((item) =>
+      [normalizeDeptName(item.Long), normalizeDeptName(item.Short)].some(
+        (n) => n.length >= 8 && (n.startsWith(nd) || nd.startsWith(n))
+      )
+    );
+    deptCode = match.Code;
+    subject = match.Subject;
+    console.log(`[${fileName}] Prefix dept match: "${department}" → "${match.Long}" (${match.Code})`);
   } else {
     // No exact match - try fuzzy matching
     const fuzzyResult = findFuzzyDeptMatch(department, deptMapping);
@@ -826,6 +904,9 @@ async function createProgData(file) {
 
   // Long title
 
+  // Drop parenthesised module codes, e.g. "... Data Analytics (37075)"
+  title = title.replace(/\s*\(\d{4,6}\)/g, "").trim();
+
   if (
     title.includes("LF ") ||
     title.includes("LC ") ||
@@ -972,7 +1053,8 @@ async function createProgData(file) {
     .replace(/<ul><li>\s*<\/li><li>/g, "<ul><li>")
     .replace(/<\/li><li>\s*<\/li><li>/g, "</li><li>")
     .replace(/<\/li><li>\s*<\/li><\/ul>/g, "</li></ul>")    
-    .replace(/<li>(\s|&nbsp;|&#160;)*<\/li>/gi, ""); // final sweep
+    .replace(/<li>(\s|&nbsp;|&#160;)*<\/li>/gi, "") // final sweep
+    .replace(/<li>\s*\d+(?:\.\d+)?\s*<\/li>/g, ""); // numeric-only row labels, e.g. <li>2</li>
   
 
     
